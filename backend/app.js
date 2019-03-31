@@ -6,9 +6,13 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var mongoose = require('mongoose');
+var session = require('express-session');
+var passport = require('passport');
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
+var login = require('./routes/login');
 
 var app = express();
 
@@ -20,12 +24,31 @@ app.set('view engine', 'pug');
 //app.use(favicon(__dirname + '/public/favicon.ico'));
 app.use(logger('dev'));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({extended: false}));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
 app.use('/users', users);
+app.use('/login', login);
+
+// Conenct to DB
+mongoose.connect(
+    "mongodb+srv://test:test@warsztaty-20e9j.azure.mongodb.net/test?retryWrites=true",
+    {useNewUrlParser: true}
+).catch(reason => {
+    console.log("MongoDB error: " + reason.message)
+});
+var db = mongoose.connection;
+
+app.use(session({
+    secret: 'secret',
+    saveUninitialized: true,
+    resave: true
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
