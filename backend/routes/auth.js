@@ -21,42 +21,42 @@ router.post('/register', function (req, res) {
     let passwordConfirmation = req.body.passwordConfirmation;
 
     if (username === undefined) {
-        sendApiError(res, "`Username` nie może być puste!");
+        sendApiError(res, 500, "`Username` nie może być puste!");
         return;
     }
 
     if (username.length < config.minUsernameChars) {
-        sendApiError(res, "`Username` musi mieć przynajmniej " + config.minUsernameChars + " znaki!");
+        sendApiError(res, 500, "`Username` musi mieć przynajmniej " + config.minUsernameChars + " znaki!");
         return;
     }
 
     if (email === undefined) {
-        sendApiError(res, "`Email` nie moze byc puste!");
+        sendApiError(res, 500, "`Email` nie moze byc puste!");
         return;
     }
 
     if (!EmailUtils.validate(email)) {
-        sendApiError(res, "`Email` nie spelnia wymogow!");
+        sendApiError(res, 500, "`Email` nie spelnia wymogow!");
         return;
     }
 
     if (password === undefined) {
-        sendApiError(res, "`Haslo` nie moze byc puste!");
+        sendApiError(res, 500, "`Haslo` nie moze byc puste!");
         return;
     }
 
     if (password.length < config.minPasswordChars) {
-        sendApiError(res, "`Haslo` musi miec przynajmniej " + config.minPasswordChars + " znakow!");
+        sendApiError(res, 500, "`Haslo` musi miec przynajmniej " + config.minPasswordChars + " znakow!");
         return;
     }
 
     if (passwordConfirmation === undefined) {
-        sendApiError(res, "`Potworz haslo` nie moze byc puste!");
+        sendApiError(res, 500, "`Potworz haslo` nie moze byc puste!");
         return;
     }
 
     if (passwordConfirmation !== password) {
-        sendApiError(res, "Hasła nie zgadzają się!");
+        sendApiError(res, 500, "Hasła nie zgadzają się!");
         return;
     }
 
@@ -70,20 +70,63 @@ router.post('/register', function (req, res) {
         },
         function (err, user) {
             if (err) {
-                sendApiError(res, "Wystapil problem przy tworzeniu uzytkownika: " + err.message);
+                sendApiError(res, 500, "Wystapil problem przy tworzeniu uzytkownika: " + err.message);
                 return;
             }
 
             let token = jwt.sign({id: user._id}, config.jwtSecret, {expiresIn: config.jwtTime});
 
-            res
-                .status(200)
-                .send(
-                    {
-                        result: "ok",
-                        token: token
-                    }
-                );
+            sendApiToken(res, token);
+        });
+});
+
+router.post('/login', function (req, res) {
+    let email = req.body.email;
+    let password = req.body.password;
+
+    if (email === undefined) {
+        sendApiError(res, 500, "`Email` nie moze byc puste!");
+        return;
+    }
+
+    if (!EmailUtils.validate(email)) {
+        sendApiError(res, 500, "`Email` nie spelnia wymogow!");
+        return;
+    }
+
+    if (password === undefined) {
+        sendApiError(res, 500, "`Haslo` nie moze byc puste!");
+        return;
+    }
+
+    if (password.length < config.minPasswordChars) {
+        sendApiError(res, 500, "`Haslo` musi miec przynajmniej " + config.minPasswordChars + " znakow!");
+        return;
+    }
+
+    UserModel.findOne(
+        {email: email},
+        function (err, user) {
+            if (err) {
+                sendApiError(res, 500, "Wystąpił błąd: " + err.message);
+                return;
+            }
+
+            if (!user) {
+                sendApiError(res, 404, "Nie odnaleziono takiego uzytkownika!");
+                return;
+            }
+
+            let isPasswordValid = bcrypt.compareSync(password, user.password);
+
+            if (!isPasswordValid) {
+                sendApiError(res, 401, "Haslo nie zgadza sie!");
+                return;
+            }
+
+            let token = jwt.sign({id: user._id}, config.jwtSecret, {expiresIn: config.jwtTime});
+
+            sendApiToken(res, token)
         });
 });
 
@@ -110,11 +153,22 @@ router.post('/register', function (req, res) {
 //     });
 // });
 
-function sendApiError(res, message) {
+function sendApiError(res, code, message) {
     res
-        .status(500)
+        .status(code)
         .send(JSON.stringify(ApiUtils.getApiError(message)))
         .end();
+}
+
+function sendApiToken(res, token) {
+    res
+        .status(200)
+        .send(
+            {
+                result: "ok",
+                token: token
+            }
+        );
 }
 
 module.exports = router;
