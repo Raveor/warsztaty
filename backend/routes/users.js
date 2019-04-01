@@ -1,10 +1,11 @@
 ﻿'use strict';
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
 
-/* GET users listing. */
-router.get('/', function (req, res) {
-    res.send('respond with a resource');
+const TokenValidator = require('../scripts/TokenValidator');
+
+router.get('/', TokenValidator, function (req, res, next) {
+    res.send('Super tajne dane chronione tokenem dla usera o id: ' + req.userId);
 });
 
 module.exports = router;

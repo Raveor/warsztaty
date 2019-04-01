@@ -163,12 +163,8 @@ function sendApiError(res, code, message) {
 function sendApiToken(res, token) {
     res
         .status(200)
-        .send(
-            {
-                result: "ok",
-                token: token
-            }
-        );
+        .send(JSON.stringify(ApiUtils.getApiToken(token)))
+        .end();
 }
 
 module.exports = router;

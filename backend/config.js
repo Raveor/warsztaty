@@ -1,7 +1,7 @@
 module.exports = {
     //JWT
     'jwtSecret': 'supersecret',
-    'jwtTime': 3600,
+    'jwtTime': 3660,
 
     //REGISTRATION
     'minUsernameChars': 4,
