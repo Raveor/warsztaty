@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node app"
+    "start": "node app",
+    "dev": "LOCAL_DB_URL=1 npm run start"
   },
   "description": "Warsztaty",
   "author": {
@@ -15,6 +16,7 @@
     "debug": "^2.2.0",
     "express": "^4.14.0",
     "mongodb": "^3.1.13",
+    "mongoose": "^5.4.20",
     "morgan": "^1.7.0",
     "pug": "^2.0.0-beta6",
     "serve-favicon": "^2.3.0"
