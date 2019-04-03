@@ -20,7 +20,8 @@
     "serve-favicon": "^2.3.0",
     "bcryptjs": "^2.4.3",
     "jsonwebtoken": "^8.5.1",
-    "mongoose": "^5.4.20"
+    "mongoose": "^5.4.20",
+    "google-auth-library": "^3.1.2"
   },
   "engines": {
     "node": "~6.10.x"

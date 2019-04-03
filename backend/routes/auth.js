@@ -80,6 +80,59 @@ router.post('/register', function (req, res) {
         });
 });
 
+router.post('/google', function (req, res) {
+    let googleToken = req.body.idtoken;
+
+    const {OAuth2Client} = require('google-auth-library');
+    const client = new OAuth2Client(config.clientId);
+
+    async function verify() {
+        const ticket = await client.verifyIdToken({
+            idToken: googleToken,
+            audience: config.clientId,
+        });
+        const payload = ticket.getPayload();
+        const userid = payload['sub'];
+        const name = payload['given_name'];
+        const surname = payload['family_name'];
+        const email = payload['email'];
+
+        UserModel.find({googleId: userid}, function (err, data) {
+            if (err) {
+                sendApiError(res, 500, "Wystapil problem przy wyszukiwaniu tokenu Google: " + err.message);
+                return;
+            }
+
+            if (data.length === 0) {
+                UserModel.create(
+                    {
+                        username: name + surname,
+                        email: email,
+                        googleId: userid
+                    },
+                    function (err, user) {
+                        if (err) {
+                            sendApiError(res, 500, "Wystapil problem przy tworzeniu uzytkownika: " + err.message);
+                            return;
+                        }
+
+                        let token = jwt.sign({id: user._id}, config.jwtSecret, {expiresIn: config.jwtTime});
+
+                        sendApiToken(res, token);
+                    });
+            } else {
+                let token = jwt.sign({id: data[0]._id}, config.jwtSecret, {expiresIn: config.jwtTime});
+
+                sendApiToken(res, token);
+            }
+        })
+    }
+
+    verify().catch(reason => {
+        sendApiError(res, 500, "Blad wyryfikacji tokenu Google: " + reason.message)
+    });
+});
+
 router.post('/login', function (req, res) {
     let email = req.body.email;
     let password = req.body.password;
