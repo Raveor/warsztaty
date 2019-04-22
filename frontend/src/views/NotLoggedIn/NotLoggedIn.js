@@ -1,12 +1,13 @@
 import React, { Component } from "react";
-// import PropTypes from "prop-types";
+import PropTypes from "prop-types";
 import Register from "../Register/Register";
 
 class NotLoggedIn extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            view: "default"
+            view: "default",
+            message: ""
         };
     }
 
@@ -48,7 +49,7 @@ class NotLoggedIn extends Component {
 }
 
 NotLoggedIn.propTypes = {
-    // onLogin: PropTypes.func // setting an user
+    onLogin: PropTypes.func.isRequired // setting an user
 };
 
 export default NotLoggedIn;

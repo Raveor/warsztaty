@@ -6,11 +6,23 @@ import NotLoggedIn from './views/NotLoggedIn/NotLoggedIn';
 class App extends Component {
   constructor(props) {
     super(props);
-    this.state = {user: null}
+    this.state = {
+      userId: "",
+      userToken: ""
+    }
+  }
+
+  setUser = (id, token) => {
+    this.setState({ userId: id, userToken: token })
   }
   
   render() {
-    let view = <NotLoggedIn></NotLoggedIn>
+    let view;
+    if (!this.state.userId) {
+      view = <NotLoggedIn onLogin={this.setUser}></NotLoggedIn>;
+    } else {
+      view = `Logged in as user ${this.state.userId}`;
+    }
     return (
       <div className="App">
         {/* <header className="App-header">

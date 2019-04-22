@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
+import RegisterPasswordForm from "../../forms/RegisterPasswordForm";
 
 class Register extends Component {
     constructor(props) {
@@ -13,7 +14,7 @@ class Register extends Component {
         let view;
         switch (this.state.view) {
             case "password":
-                view = <div>TODO: password register</div>;
+                view = <div><RegisterPasswordForm onSuccess={()=>{alert("User created!")}}></RegisterPasswordForm></div>;
                 break;
 
             case "google":
