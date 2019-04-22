@@ -6,6 +6,7 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var cors = require('cors');
 var db = require('./scripts/DatabaseConnection');
 global.__root = __dirname + '/';
 
@@ -28,6 +29,17 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
+const corsWhitelist=["http://localhost:3001"];
+app.use(cors({
+    origin: (origin, callback) => {
+        if (corsWhitelist.indexOf(origin) !== -1) {
+            callback(null, true)
+        } else {
+            callback(new Error('Not allowed by CORS'))
+        }
+    }
+}))
 
 app.use('/', routes);
 app.use('/users', users);
