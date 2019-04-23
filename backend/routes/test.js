@@ -6,11 +6,15 @@ var router = express.Router();
 
 /* GET home page. */
 router.get('/', function (req, res) {
-    res.render('index', { title: 'Testowa strona!!!' });
+    res.render('index', {title: 'Testowa strona!!!'});
 });
 
 router.get('/google', function (req, res) {
-    res.render('test_google', { title: 'Testowa strona Google!!!' });
+    res.render('test_google', {title: 'Testowa strona Google!!!'});
+});
+
+router.get('/google/merge', function (req, res) {
+    res.render('test_merge_google', {title: 'Testowa strona Merge Google!!!'});
 });
 
 module.exports = router;

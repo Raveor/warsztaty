@@ -90,7 +90,19 @@ router.post('/google', function (req, res) {
     });
 });
 
-router.post('/merge/google', TokenValidator, function (req, res) {
+router.post('/add/google', TokenValidator, function (req, res) {
+    let userId = req.userId;
+
+    console.log("merge google");
+
+    let googleToken = req.body.idtoken;
+
+    verifyMerge(res, userId, googleToken).catch(reason => {
+        sendApiError(res, 500, "Blad weryfikacji tokenu Google: " + reason.message)
+    });
+});
+
+router.post('/add/native', TokenValidator, function (req, res) {
     let userId = req.userId;
 
     let password = req.body.password;
@@ -118,7 +130,10 @@ router.post('/merge/google', TokenValidator, function (req, res) {
 
     let hashedPassword = bcrypt.hashSync(password, 8);
 
-    let query = {_id: userId};
+    let query = {
+        _id: userId,
+        password: {$exists: false}
+    };
 
     UserModel.update(
         query,
@@ -233,7 +248,42 @@ async function verify(res, googleToken) {
     })
 }
 
+async function verifyMerge(res, userId, googleToken) {
+    const {OAuth2Client} = require('google-auth-library');
+    const client = new OAuth2Client(config.clientId);
+
+    const ticket = await client.verifyIdToken({
+        idToken: googleToken,
+        audience: config.clientId,
+    });
+    const payload = ticket.getPayload();
+    const googleId = payload['sub'];
+
+    let query = {
+        _id: userId,
+        googleId: {$exists: false}
+    };
+
+    UserModel.update(
+        query,
+        {googleId: googleId},
+        function (err, data) {
+            if (err) {
+                sendApiError(res, 500, "Wystapil problem przy dodawaniu konta facebookowego do natywnego: " + err.message);
+                return;
+            }
+
+            if (data.nModified !== 1) {
+                sendApiError(res, 500, "Wystapil problem przy dodawaniu konta facebookowego do natywnego.");
+                return;
+            }
+
+            sendOkResult(res);
+        });
+}
+
 function sendApiError(res, code, message) {
+    // console.log(message);
     res
         .status(code)
         .send(JSON.stringify(ApiUtils.getApiError(message)))
@@ -241,6 +291,7 @@ function sendApiError(res, code, message) {
 }
 
 function sendApiToken(res, token) {
+    // console.log(token);
     res
         .status(200)
         .send(JSON.stringify(ApiUtils.getApiToken(token)))
