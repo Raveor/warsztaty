@@ -68,6 +68,13 @@ class Login extends Component {
                 Don't have an account? <Link to="/register">Register</Link>
               </p>
             </div>
+
+            <div className="input-field col s12">
+                <span className="red-text">
+                  {(!(Object.entries(errors).length === 0 && errors.constructor === Object)) ? errors.data.message : " " }
+                </span>
+            </div>
+
             <form noValidate onSubmit={this.onSubmit}>
               <div className="input-field col s12">
                 <input
