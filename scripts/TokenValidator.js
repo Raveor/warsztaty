@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const ApiUtils = require('../scripts/ApiUtils');
+const ApiUtils = require('./ApiUtils');
 const config = require('../config');
 
 function verifyToken(req, res, next) {

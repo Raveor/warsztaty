@@ -9,7 +9,7 @@ var bodyParser = require('body-parser');
 var db = require('./scripts/DatabaseConnection');
 global.__root = __dirname + '/';
 
-var routes = require('./routes/index');
+var routes = require('./routes');
 var users = require('./routes/users');
 var login = require('./routes/login');
 var auth = require('./routes/auth');
