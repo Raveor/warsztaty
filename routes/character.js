@@ -1,38 +1,43 @@
 'use strict';
 const express = require('express');
-const router = express.Router();
+const bodyParser = require('body-parser');
+
+let ObjectId = require('mongodb').ObjectId;
 
 const CharacterModel = require('../models/Character');
 const ApiUtils = require('../scripts/ApiUtils');
 const CharacterUtils = require('../scripts/CharacterUtils');
 
+const router = express.Router();
+
+router.use(bodyParser.urlencoded({ extended: false }));
+router.use(bodyParser.json());
 
 router.get('/character', function (req, res) {
     let userId = req.userId;
-    CharacterModel.find({userId: userId},
+    CharacterModel.find({ userId: ObjectId(userId) },
         function (err, characters) {
             if (err) {
                 sendApiError(res, 500, "Wystapil blad przy pobieraniu statystyk postaci: " + err.message);
                 return;
             }
-            res.send(character[0])            
-            
-            
+            res.send(characters[0])
+
         });
-})
+});
 
 // router.post('/character', function (req, res) {
 //     let characterId = req.body.characterId;
 //     CharacterModel.findById
 // })
 
-router.put('/character/{id}')
+router.put('/character/{id}', function (req, res) {
     let characterId = req.body.characterId;
     let userId = req.userId;
     let updatedCharacter = req.body;
 
     CharacterModel.find(
-        {_id: characterId},
+        { _id: ObjectId(characterId) },
         function (err, characters) {
             if (err) {
                 sendApiError(res, 500, "Wystapil blad przy pobieraniu postaci: " + err.message);
@@ -52,32 +57,33 @@ router.put('/character/{id}')
             }
 
             CharacterModel.update(
-                {_id: character._id},
+                { _id: ObjectId(character._id) },
                 updatedCharacter,
-                {new: true, upsert: true, setDefaultsOnInsert: false},
+                { new: true, upsert: true, setDefaultsOnInsert: false },
                 function (err, updCharacter) {
                     if (err) {
                         sendApiError(res, 500, "Wystapil blad przy aktualizowaniu statystyk postaci: " + err.message);
-                    } else {
-                        //insert updated character in response
-                        sendOkResult(res)
+                        return;
                     }
+
+                    res.write(data);
+                    sendOkResult(res)
                 });
-            
+
         });
+});
 
+function sendOkResult(res) {
+    res
+        .status(200)
+        .send(JSON.stringify(ApiUtils.getApiOkResult()))
+        .end();
+}
 
-        function sendOkResult(res) {
-            res
-                .status(200)
-                .send(JSON.stringify(ApiUtils.getApiOkResult()))
-                .end();
-        }
-        
-        function sendApiError(res, code, message) {
-            res
-                .status(code)
-                .send(JSON.stringify(ApiUtils.getApiError(message)))
-                .end();
-        }
+function sendApiError(res, code, message) {
+    res
+        .status(code)
+        .send(JSON.stringify(ApiUtils.getApiError(message)))
+        .end();
+}
 module.exports = router;

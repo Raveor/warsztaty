@@ -1,16 +1,19 @@
 const config = require('../config');
 
 class Character {
-    constructor(userId, level, experience, experienceRequired, statPoints, health, strength, agility, intelligence, currentHealth, money) {
+    constructor(userId, level, experience, experienceRequired, statPoints, statistics, health, strength, agility, intelligence, currentHealth, money) {
         this.userId = userId;
         this.level = level;
         this.experience = experience;
         this.experienceRequired = experienceRequired;
         this.statPoints = statPoints;
-        this.health = health;
-        this.strength = strength;
-        this.agility = agility;
-        this.intelligence = intelligence;
+        
+        this.statistics = statistics
+        // this.health = health;
+        // this.strength = strength;
+        // this.agility = agility;
+        // this.intelligence = intelligence;
+        
         this.money = money;
         this.currentHealth = currentHealth;
     }
@@ -35,9 +38,16 @@ exports.levelUpCharacter = function (character) {
     character.experience = 0 // is experience zero'ed with every levelup or cumulative?
     character.experienceRequired = calcExperienceRequired(character.level);
     character.statPoints += config.statPointsPerLevel;
-    character.health += config.healthPointsPerLevel;
+    let statistics = character.statistics;
+    let health = statistics.health + config.healthPointsPerLevel;
 
-    return new Character(character.userId, character.level, character.experience, character.experienceRequired, character.statPoints, character.health, character.strength, character.agility, character.intelligence, character.money, character.currentHealth);
+    character.currentHealth = character.health;
+
+    let newStatistics = new Statistics(health, statistics.strength, statistics.agility, statistics.intelligence)
+
+    return new Character(character.userId, character.level, character.experience, character.experienceRequired, character.statPoints, newStatistics, character.money, character.currentHealth);
+
+    // return new Character(character.userId, character.level, character.experience, character.experienceRequired, character.statPoints, newStatistics, character.health, character.strength, character.agility, character.intelligence, character.money, character.currentHealth);
 }
 
 exports.saveStatistics = function (oldStats, newStats) { //need to pass old stats + modified stats
@@ -49,12 +59,16 @@ exports.createNewCharacter = function (userId) {
     let experience = 0;
     let experienceRequired = calcExperienceRequired(level);
     let statPoints = 0;
-    let health = 5; // level 1 health value - temp
+    let health = 5; // level 1 health value for now
     let strength = 1;
     let agility = 1;
     let intelligence = 1;
     let money = 0;
     let currentHealth = health;
 
-    return new Character(userId, level, experience, experienceRequired, statPoints, health, strength, agility, intelligence, money, currentHealth);
+    let statistics = new Statistics(health, strength, agility, intelligence)
+
+    return new Character(userId, level, experience, experienceRequired, statPoints, statistics, money, currentHealth);
+
+    // return new Character(userId, level, experience, experienceRequired, statPoints, statistics, health, strength, agility, intelligence, money, currentHealth);
 }
