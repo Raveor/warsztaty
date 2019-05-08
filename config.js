@@ -13,5 +13,9 @@ module.exports = {
     //EXPEDITION
     'userExpeditions': 5,
     'expeditionMinTime': 1000 * 60 * 5,
-    'expeditionMaxTime': 1000 * 60 * 45
+    'expeditionMaxTime': 1000 * 60 * 45,
+
+    //CHARACTER - STATS
+    'statPointsPerLevel': 5,
+    'healthPointsPerLevel': 4 
 };

@@ -4,26 +4,26 @@ let CharacterSchema = new mongoose.Schema({
     _id: {
         type:Schema.Types.ObjectId,
     },
-    name: {
-        type: String,
+    level: {
+        type: Number,
         required: true,
-        unique: true
+        default: 1
     },
     experience: {
         type: Number,
         required: true,
         default: 0
     },
-    level: {
+    experienceRequired: {
         type: Number,
         required: true,
-        default: 1
+    },
+    statPoints: {
+        type: Number,
+        required: true,
+        default: 0
     },
     stats: {
-        points: {
-            type: Number,
-            default: 0
-        },
         health: {
             type: Number,
             default: 1
@@ -36,12 +36,22 @@ let CharacterSchema = new mongoose.Schema({
             type: Number,
             default: 1
         },
-        intelligentce: {
+        intelligence: {
             type: Number,
             default: 1
         }
     },
-    user: {
+    money: {
+        type: Number,
+        required: true,
+        default: 0
+    },
+    currentHealth: {
+        type: Number,
+        required: true,
+        default: 1
+    },
+    userId: {
         type: Schema.Types.ObjectId,
         ref: 'User'
     }
