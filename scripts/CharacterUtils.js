@@ -9,10 +9,6 @@ class Character {
         this.statPoints = statPoints;
         
         this.statistics = statistics
-        // this.health = health;
-        // this.strength = strength;
-        // this.agility = agility;
-        // this.intelligence = intelligence;
         
         this.money = money;
         this.currentHealth = currentHealth;
@@ -36,7 +32,7 @@ let calcExperienceRequired = function (level) {
 
 exports.levelUpCharacter = function (character) {
     character.level += 1;
-    character.experience = 0 // is experience zero'ed with every levelup or cumulative?
+    character.experience = 0 // experience zero'ed with every levelup
     character.experienceRequired = calcExperienceRequired(character.level);
     character.statPoints += config.statPointsPerLevel;
     let statistics = character.statistics;
