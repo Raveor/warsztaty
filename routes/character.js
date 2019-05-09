@@ -24,7 +24,7 @@ router.get('/', TokenValidator, function (req, res) {
                 return;
             }
             if (characters.length === 0) {
-                sendApiError(res, 500, "Nie znaleziono postaci dla uzytkownika o id: " + userId);
+                sendApiError(res, 404, "Nie znaleziono postaci dla uzytkownika o id: " + userId);
                 return;
             }
             res.send(characters[0])
@@ -47,14 +47,14 @@ router.put('/update', TokenValidator, function (req, res) {
             }
 
             if (characters.length === 0) {
-                sendApiError(res, 500, "Nie znaleziono postaci o id: " + characterId);
+                sendApiError(res, 404, "Nie znaleziono postaci o id: " + characterId);
                 return;
             }
 
             let character = characters[0];
 
             if (character.userId != userId) {
-                sendApiError(res, 500, "Postac o id: " + characterId + " nie nalezy do uzytkownika o id: " + userId);
+                sendApiError(res, 401, "Postac o id: " + characterId + " nie nalezy do uzytkownika o id: " + userId);
                 return;
             }
 
