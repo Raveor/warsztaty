@@ -27,7 +27,8 @@ class Statistics {
         this.intelligence = intelligence;
     }
 }
-exports.calcExperienceRequired = function (level) {
+
+let calcExperienceRequired = function (level) {
     var constValue = 0.04;
     let experience = Math.pow(level, 2) / constValue
     return experience;
@@ -46,12 +47,6 @@ exports.levelUpCharacter = function (character) {
     let newStatistics = new Statistics(health, statistics.strength, statistics.agility, statistics.intelligence)
 
     return new Character(character.userId, character.level, character.experience, character.experienceRequired, character.statPoints, newStatistics, character.money, character.currentHealth);
-
-    // return new Character(character.userId, character.level, character.experience, character.experienceRequired, character.statPoints, newStatistics, character.health, character.strength, character.agility, character.intelligence, character.money, character.currentHealth);
-}
-
-exports.saveStatistics = function (oldStats, newStats) { //need to pass old stats + modified stats
-
 }
 
 exports.createNewCharacter = function (userId) {
@@ -69,6 +64,4 @@ exports.createNewCharacter = function (userId) {
     let statistics = new Statistics(health, strength, agility, intelligence)
 
     return new Character(userId, level, experience, experienceRequired, statPoints, statistics, money, currentHealth);
-
-    // return new Character(userId, level, experience, experienceRequired, statPoints, statistics, health, strength, agility, intelligence, money, currentHealth);
 }

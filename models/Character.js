@@ -1,15 +1,16 @@
 let mongoose = require('mongoose')
 
 let CharacterSchema = new mongoose.Schema({
-    _id: {
-        type:Schema.Types.ObjectId,
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
     },
     level: {
         type: Number,
         required: true,
         default: 1
     },
-    experience: {
+    experience: { 
         type: Number,
         required: true,
         default: 0
@@ -50,10 +51,6 @@ let CharacterSchema = new mongoose.Schema({
         type: Number,
         required: true,
         default: 1
-    },
-    userId: {
-        type: Schema.Types.ObjectId,
-        ref: 'User'
     }
 });
 
