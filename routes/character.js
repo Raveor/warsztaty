@@ -27,7 +27,7 @@ router.get('/', TokenValidator, function (req, res) {
                 sendApiError(res, 404, "Nie znaleziono postaci dla uzytkownika o id: " + userId);
                 return;
             }
-            res.send(characters[0])
+            res.send(characters[0]);
 
         });
 });
@@ -36,6 +36,7 @@ router.put('/update', TokenValidator, function (req, res) {
     let characterId = req.body._id;
 
     let userId = req.userId;
+    
     let updatedCharacter = req.body;
 
     CharacterModel.find(
@@ -58,8 +59,8 @@ router.put('/update', TokenValidator, function (req, res) {
                 return;
             }
 
-            if (character.experience >= character.experienceRequired) {
-                character = CharacterUtils.levelUpCharacter(character);
+            while (updatedCharacter.experience >= updatedCharacter.experienceRequired) {
+                updatedCharacter = CharacterUtils.levelUpCharacter(updatedCharacter);
             }
 
             CharacterModel.updateOne(
@@ -72,7 +73,7 @@ router.put('/update', TokenValidator, function (req, res) {
                         return;
                     }
 
-                    sendOkResult(res)
+                    sendOkResult(res);
                 });
 
         });
@@ -109,12 +110,12 @@ router.post('/add', TokenValidator, function (req, res) {
                 })
                 .catch(err => {
                     sendApiError(res, 500, "Wystapil problem przy tworzeniu postaci: " + err.message);
-                })
+                });
         });
 
 
 
-})
+});
 function sendOkResult(res) {
     res
         .status(200)

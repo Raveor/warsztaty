@@ -1,4 +1,4 @@
-let mongoose = require('mongoose')
+let mongoose = require('mongoose');
 
 let CharacterSchema = new mongoose.Schema({
     userId: {
@@ -24,7 +24,7 @@ let CharacterSchema = new mongoose.Schema({
         required: true,
         default: 0
     },
-    stats: {
+    statistics: {
         health: {
             type: Number,
             default: 1

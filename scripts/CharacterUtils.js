@@ -1,15 +1,13 @@
 const config = require('../config');
 
 class Character {
-    constructor(userId, level, experience, experienceRequired, statPoints, statistics, health, strength, agility, intelligence, currentHealth, money) {
+    constructor(userId, level, experience, experienceRequired, statPoints, statistics, money, currentHealth) {
         this.userId = userId;
         this.level = level;
         this.experience = experience;
         this.experienceRequired = experienceRequired;
         this.statPoints = statPoints;
-        
-        this.statistics = statistics
-        
+        this.statistics = statistics;
         this.money = money;
         this.currentHealth = currentHealth;
     }
@@ -25,25 +23,22 @@ class Statistics {
 }
 
 let calcExperienceRequired = function (level) {
-    var constValue = 0.04;
-    let experience = Math.pow(level, 2) / constValue
+    let experience = Math.pow(level, 2) / 0.04;
     return experience;
-}
+};
 
 exports.levelUpCharacter = function (character) {
     character.level += 1;
     character.experience = character.experience - character.experienceRequired;
     character.experienceRequired = calcExperienceRequired(character.level);
     character.statPoints += config.statPointsPerLevel;
+    
     let statistics = character.statistics;
     let health = statistics.health + config.healthPointsPerLevel;
+    let newStatistics = new Statistics(health, statistics.strength, statistics.agility, statistics.intelligence);
 
-    character.currentHealth = character.health;
-
-    let newStatistics = new Statistics(health, statistics.strength, statistics.agility, statistics.intelligence)
-
-    return new Character(character.userId, character.level, character.experience, character.experienceRequired, character.statPoints, newStatistics, character.money, character.currentHealth);
-}
+    return new Character(character.userId, character.level, character.experience, character.experienceRequired, character.statPoints, newStatistics, character.money, health);
+};
 
 exports.createNewCharacter = function (userId) {
     let level = 1;
@@ -57,7 +52,7 @@ exports.createNewCharacter = function (userId) {
     let money = 0;
     let currentHealth = health;
 
-    let statistics = new Statistics(health, strength, agility, intelligence)
+    let statistics = new Statistics(health, strength, agility, intelligence);
 
     return new Character(userId, level, experience, experienceRequired, statPoints, statistics, money, currentHealth);
-}
+};

@@ -89,13 +89,11 @@ router.post('/register', function (req, res) {
                             sendApiError(res, 500, "Wystapil blad przy pobieraniu postaci: " + err.message);
                             return;
                         }
-
-                        res.send(e);
                     });
                 })
                 .catch(err => {
                     sendApiError(res, 500, "Wystapil problem przy tworzeniu postaci: " + err.message);
-                })
+                });
 
             let token = jwt.sign({id: user._id}, config.jwtSecret, {expiresIn: config.jwtTime});
 
@@ -221,7 +219,7 @@ router.post('/login', function (req, res) {
 
             let token = jwt.sign({id: user._id}, config.jwtSecret, {expiresIn: config.jwtTime});
 
-            sendApiToken(res, token)
+            sendApiToken(res, token);
         });
 });
 
@@ -267,7 +265,7 @@ async function verify(res, googleToken) {
 
             sendApiToken(res, token);
         }
-    })
+    });
 }
 
 async function verifyMerge(res, userId, googleToken) {
