@@ -5,8 +5,11 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
 const UserModel = require('../models/User');
+const CharacterModel = require('../models/Character');
 const ApiUtils = require('../scripts/ApiUtils');
 const EmailUtils = require('../scripts/EmailUtils');
+const CharacterUtils = require('../scripts/CharacterUtils');
+
 const config = require('../config');
 
 const TokenValidator = require('../scripts/TokenValidator');
@@ -76,10 +79,42 @@ router.post('/register', function (req, res) {
                 return;
             }
 
+            CharacterModel.find(
+                { userId: ObjectId(user._id) },
+                function (err, characters) {
+                    if (err) {
+                        sendApiError(res, 500, "Wystapil blad przy pobieraniu statystyk postaci: " + err.message);
+                        return;
+                    }
+                    if (characters.length !== 0) {
+                        sendApiError(res, 500, "Istnieje juz postac dla uzytkownika o id: " + user._id);
+                        return;
+                    }
+        
+                    let character = CharacterUtils.createNewCharacter(user._id);
+        
+                    CharacterModel
+                        .create(character)
+                        .then(dep => {
+                            CharacterModel.find({ userId: user._id }, function (err, e) {
+                                if (err) {
+                                    sendApiError(res, 500, "Wystapil blad przy pobieraniu postaci: " + err.message);
+                                    return;
+                                }
+        
+                                res.send(e);
+                            });
+                        })
+                        .catch(err => {
+                            sendApiError(res, 500, "Wystapil problem przy tworzeniu postaci: " + err.message);
+                        })
+                });
+
             let token = jwt.sign({id: user._id}, config.jwtSecret, {expiresIn: config.jwtTime});
 
             sendApiToken(res, token);
         });
+        
 });
 
 router.post('/google', function (req, res) {
