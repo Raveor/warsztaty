@@ -14,6 +14,7 @@ var users = require('./routes/users');
 var login = require('./routes/login');
 var auth = require('./routes/auth');
 var expeditions = require('./routes/expeditions');
+var admin = require('./routes/admin');
 var test = require('./routes/test'); //ONLY FOT TESTS
 
 var app = express();
@@ -35,6 +36,7 @@ app.use('/users', users);
 app.use('/login', login);
 app.use('/auth', auth);
 app.use('/expeditions', expeditions);
+app.use('/admin', admin);
 app.use('/test', test);
 
 // catch 404 and forward to error handler

@@ -16,8 +16,19 @@ const UserSchema = new mongoose.Schema({
     },
     googleId: {
         type: String
-    }
-});
+    },
+    adminFlag: {
+        type: Boolean,
+        default: false
+    },
+    contactFlag: {
+        type: Boolean,
+        default: true
+    },
+    activeFlag: {
+        type: Boolean,
+        default: true
+    }});
 mongoose.model('users', UserSchema);
 
 module.exports = mongoose.model('users');
