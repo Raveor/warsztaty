@@ -58,9 +58,13 @@ router.put('/update', TokenValidator, function (req, res) {
                 return;
             }
 
+            if (character.experience >= character.experienceRequired) {
+                character = CharacterUtils.levelUpCharacter(character);
+            }
+
             CharacterModel.updateOne(
                 { _id: ObjectId(character._id) },
-                updatedCharacter,
+                updatedCharacter, //In case of level up, do I need to JSON.Stringify?
                 { new: true, upsert: true, setDefaultsOnInsert: false },
                 function (err, updatedCharacter) {
                     if (err) {

@@ -32,7 +32,7 @@ let calcExperienceRequired = function (level) {
 
 exports.levelUpCharacter = function (character) {
     character.level += 1;
-    character.experience = 0 // experience zero'ed with every levelup
+    character.experience = character.experience - character.experienceRequired;
     character.experienceRequired = calcExperienceRequired(character.level);
     character.statPoints += config.statPointsPerLevel;
     let statistics = character.statistics;
