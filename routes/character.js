@@ -32,29 +32,27 @@ router.get('/', TokenValidator, function (req, res) {
         });
 });
 
-router.put('/update', TokenValidator, function (req, res) {
+router.put('/', TokenValidator, function (req, res) {
     let characterId = req.body._id;
 
     let userId = req.userId;
     
     let updatedCharacter = req.body;
 
-    CharacterModel.find(
+    CharacterModel.findOne(
         { _id: ObjectId(characterId) },
-        function (err, characters) {
+        function (err, character) {
             if (err) {
                 sendApiError(res, 500, "Wystapil blad przy pobieraniu postaci: " + err.message);
                 return;
             }
 
-            if (characters.length === 0) {
+            if ( !character || typeof character === 'undefined') { 
                 sendApiError(res, 404, "Nie znaleziono postaci o id: " + characterId);
                 return;
             }
 
-            let character = characters[0];
-
-            if (character.userId != userId) {
+            if (updatedCharacter.userId !== userId || character.userId.toString() !== userId) {
                 sendApiError(res, 401, "Postac o id: " + characterId + " nie nalezy do uzytkownika o id: " + userId);
                 return;
             }
@@ -79,7 +77,7 @@ router.put('/update', TokenValidator, function (req, res) {
         });
 });
 
-router.post('/add', TokenValidator, function (req, res) {
+router.post('/', TokenValidator, function (req, res) {
     let userId = req.userId;
 
     CharacterModel.find(
