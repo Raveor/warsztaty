@@ -15,10 +15,6 @@ let CharacterSchema = new mongoose.Schema({
         required: true,
         default: 0
     },
-    experienceRequired: {
-        type: Number,
-        required: true,
-    },
     statistics: {
         statPoints: {
             type: Number,

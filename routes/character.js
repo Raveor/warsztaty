@@ -17,18 +17,20 @@ router.use(bodyParser.json());
 
 router.get('/', TokenValidator, function (req, res) {
     let userId = req.userId;
-    CharacterModel.find({ userId: ObjectId(userId) },
-        function (err, characters) {
+    CharacterModel.findOne({ userId: ObjectId(userId) },
+        function (err, character) {
             if (err) {
                 sendApiError(res, 500, "Wystapil blad przy pobieraniu statystyk postaci: " + err.message);
                 return;
             }
-            if (characters.length === 0) {
+
+            if ( !character || typeof character === 'undefined') { 
                 sendApiError(res, 404, "Nie znaleziono postaci dla uzytkownika o id: " + userId);
                 return;
             }
-            res.send(characters[0]);
 
+            let experienceRequired = CharacterUtils.calcExperienceRequired(character.level);
+            res.send({ character, experienceRequired});
         });
 });
 
@@ -62,7 +64,7 @@ router.put('/', TokenValidator, function (req, res) {
                 return;
             }
 
-            while (updatedCharacter.experience >= updatedCharacter.experienceRequired) {
+            while (updatedCharacter.experience >= CharacterUtils.calcExperienceRequired(updatedCharacter.level)) {
                 updatedCharacter = CharacterUtils.levelUpCharacter(updatedCharacter);
             }
 
