@@ -57,6 +57,10 @@ router.put('/', TokenValidator, function (req, res) {
                 return;
             }
 
+            if (!CharacterUtils.validateStatistics(character, updatedCharacter)) {
+                sendApiError(res, 409, "Punkty statystyk postaci o id: " + characterId + "nie zostaly poprawnie rozdzielone");
+            }
+
             while (updatedCharacter.experience >= updatedCharacter.experienceRequired) {
                 updatedCharacter = CharacterUtils.levelUpCharacter(updatedCharacter);
             }

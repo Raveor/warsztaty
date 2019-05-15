@@ -56,3 +56,29 @@ exports.createNewCharacter = function (userId) {
 
     return new Character(userId, level, experience, experienceRequired, statPoints, statistics, money, currentHealth);
 };
+
+exports.validateStatistics = function (character, updatedCharacter) { 
+    let statPointsDiff = updatedCharacter.statPoints - character.statPoints;
+    
+    if (statPointsDiff < 0) { 
+        return false;
+    }
+    
+    let stats = character.statistics;
+    let updatedStats = updatedCharacter.statistics
+    
+    if (updatedStats.health < stats.health || updatedStats.strength < stats.strength
+         || updatedStats.agility < stats.agility || updatedStats.intelligence < stats.intelligence) {
+        return false;
+    }
+
+    let statsTotal = stats.health + stats.strength + stats.agility + stats.intelligence;
+    let updatedStatTotals = updatedStats.health + updatedStats.strength + updatedStats.agility + updatedStats.intelligence;
+    let statDiff = statsTotal - updatedStatTotals;
+
+    if (statPointDiff !== statDiff) {
+        return false;
+    }
+
+    return true;
+}
