@@ -12,9 +12,10 @@ class ExpeditionReportList extends Component {
         this.loadReports();
     }
 
-    loadReports = () => {
+    loadReports = async () => {
+        await axios.get(`/expeditions/available`)
         axios.get(`/expeditions/reports`).then(res => {
-            const reports = res.data/* .concat(testReports) */; // testing displaying reports when unable to pull them from backend
+            const reports = res.data;
             const expandedReport = reports.length > 0 ? reports[0]._id : null;
             this.setState({ reports, expandedReport });
         });
@@ -50,42 +51,5 @@ class ExpeditionReportList extends Component {
         );
     }
 }
-
-const testReports = [
-    {
-        _id: 1,
-        name: "Test expedition 1",
-        time: 12345,
-        level: 1,
-        whenStarted: new Date(new Date().getTime() - 100000),
-        moneyPrize: 1000,
-        itemPrize: "test reward 1"
-    },
-    {
-        _id: 2,
-        name: "Test expedition 2",
-        time: 22345,
-        level: 2,
-        whenStarted: new Date(new Date().getTime() - 100000),
-        itemPrize: "test reward 2"
-    },
-    {
-        _id: 3,
-        name: "Test expedition 3",
-        time: 32345,
-        level: 3,
-        whenStarted: new Date(new Date().getTime() - 100000),
-        moneyPrize: 2000
-    },
-    {
-        _id: 4,
-        name: "Test expedition 4",
-        time: 42345,
-        level: 4,
-        whenStarted: new Date(new Date().getTime() - 100000),
-        moneyPrize: 3000,
-        itemPrize: "test reward 3"
-    }
-];
 
 export default ExpeditionReportList;
