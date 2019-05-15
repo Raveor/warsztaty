@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
+    "dev": "start npm run start && start npm run start --prefix ./client",
     "start": "node app"
   },
   "description": "Warsztaty",

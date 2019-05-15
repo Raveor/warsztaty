@@ -185,6 +185,17 @@ router.get('/reports', TokenValidator, function (req, res, next) {
         });
 });
 
+router.get('/current', TokenValidator, function (req, res) {
+    ExpeditionModel.find({userId: req.userId}, function (err, expeditions) {
+        if(err){
+            sendApiError(res, 500, "Wystapil blad przy pobieraniu aktualnej wyprawy: "  + err.message);
+            return;
+        }
+
+        res.send(expeditions);
+    });
+});
+
 router.post('/reports/remove', TokenValidator, function (req, res, next) {
 
 });
