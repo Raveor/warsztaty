@@ -217,7 +217,15 @@ router.post('/login', function (req, res) {
                 return;
             }
 
-            let token = jwt.sign({id: user._id}, config.jwtSecret, {expiresIn: config.jwtTime});
+            if (user.activeFlag === false) {
+                sendApiError(res, 500, "Konto zostalo zdezaktywowane");
+                return;
+            }
+
+            let token = jwt.sign({
+                id: user._id,
+                isAdmin: user.adminFlag
+            }, config.jwtSecret, {expiresIn: config.jwtTime});
 
             sendApiToken(res, token);
         });
@@ -261,6 +269,11 @@ async function verify(res, googleToken) {
                     sendApiToken(res, token);
                 });
         } else {
+            if (user.activeFlag === false) {
+                sendApiError(res, 500, "Konto zostalo zdezaktywowane");
+                return;
+            }
+
             let token = jwt.sign({id: data[0]._id}, config.jwtSecret, {expiresIn: config.jwtTime});
 
             sendApiToken(res, token);
