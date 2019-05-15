@@ -59,16 +59,18 @@ exports.createNewCharacter = function (userId) {
 
 exports.validateStatistics = function (character, updatedCharacter) { 
     let statPointsDiff = updatedCharacter.statPoints - character.statPoints;
-    
-    if (statPointsDiff < 0) { 
+    if (statPointsDiff > 0) { 
+        console.log('statPointsDiff < 0');
         return false;
     }
     
     let stats = character.statistics;
-    let updatedStats = updatedCharacter.statistics
+    let updatedStats = updatedCharacter.statistics;
     
     if (updatedStats.health < stats.health || updatedStats.strength < stats.strength
          || updatedStats.agility < stats.agility || updatedStats.intelligence < stats.intelligence) {
+        console.log('at least one of statistics lower than before');
+        
         return false;
     }
 
@@ -76,9 +78,11 @@ exports.validateStatistics = function (character, updatedCharacter) {
     let updatedStatTotals = updatedStats.health + updatedStats.strength + updatedStats.agility + updatedStats.intelligence;
     let statDiff = statsTotal - updatedStatTotals;
 
-    if (statPointDiff !== statDiff) {
+    if (statPointsDiff !== statDiff) {
+        console.log('statPointsDiff != statDiff');
+        
         return false;
     }
 
     return true;
-}
+};
