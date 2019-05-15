@@ -1,12 +1,11 @@
 const config = require('../config');
 
 class Character {
-    constructor(userId, level, experience, experienceRequired, statPoints, statistics, money, currentHealth) {
+    constructor(userId, level, experience, experienceRequired, statistics, money, currentHealth) {
         this.userId = userId;
         this.level = level;
         this.experience = experience;
         this.experienceRequired = experienceRequired;
-        this.statPoints = statPoints;
         this.statistics = statistics;
         this.money = money;
         this.currentHealth = currentHealth;
@@ -14,7 +13,8 @@ class Character {
 }
 
 class Statistics {
-    constructor(health, strength, agility, intelligence) {
+    constructor(statPoints, health, strength, agility, intelligence) {
+        this.statPoints = statPoints;
         this.health = health;
         this.strength = strength;
         this.agility = agility;
@@ -31,13 +31,14 @@ exports.levelUpCharacter = function (character) {
     character.level += 1;
     character.experience = character.experience - character.experienceRequired;
     character.experienceRequired = calcExperienceRequired(character.level);
-    character.statPoints += config.statPointsPerLevel;
     
     let statistics = character.statistics;
-    let health = statistics.health + config.healthPointsPerLevel;
-    let newStatistics = new Statistics(health, statistics.strength, statistics.agility, statistics.intelligence);
+    statistics.statPoints += config.statPointsPerLevel;
 
-    return new Character(character.userId, character.level, character.experience, character.experienceRequired, character.statPoints, newStatistics, character.money, health);
+    let health = statistics.health + config.healthPointsPerLevel;
+    let newStatistics = new Statistics(statistics.statPoints, health, statistics.strength, statistics.agility, statistics.intelligence);
+
+    return new Character(character.userId, character.level, character.experience, character.experienceRequired, newStatistics, character.money, health);
 };
 
 exports.createNewCharacter = function (userId) {
@@ -52,35 +53,31 @@ exports.createNewCharacter = function (userId) {
     let money = 0;
     let currentHealth = health;
 
-    let statistics = new Statistics(health, strength, agility, intelligence);
+    let statistics = new Statistics(statPoints, health, strength, agility, intelligence);
 
-    return new Character(userId, level, experience, experienceRequired, statPoints, statistics, money, currentHealth);
+    return new Character(userId, level, experience, experienceRequired, statistics, money, currentHealth);
 };
 
-exports.validateStatistics = function (character, updatedCharacter) { 
-    let statPointsDiff = updatedCharacter.statPoints - character.statPoints;
-    if (statPointsDiff > 0) { 
+exports.validateStatistics = function (stats, updatedStats) { 
+    
+    let statPointsDiff = stats.statPoints - updatedStats.statPoints;
+    if (statPointsDiff < 0) { 
         console.log('statPointsDiff < 0');
         return false;
     }
     
-    let stats = character.statistics;
-    let updatedStats = updatedCharacter.statistics;
-    
     if (updatedStats.health < stats.health || updatedStats.strength < stats.strength
          || updatedStats.agility < stats.agility || updatedStats.intelligence < stats.intelligence) {
-        console.log('at least one of statistics lower than before');
-        
+        console.log('at least one of statistics lower than before');    
         return false;
     }
 
     let statsTotal = stats.health + stats.strength + stats.agility + stats.intelligence;
     let updatedStatTotals = updatedStats.health + updatedStats.strength + updatedStats.agility + updatedStats.intelligence;
-    let statDiff = statsTotal - updatedStatTotals;
+    let statDiff = updatedStatTotals - statsTotal;
 
     if (statPointsDiff !== statDiff) {
         console.log('statPointsDiff != statDiff');
-        
         return false;
     }
 

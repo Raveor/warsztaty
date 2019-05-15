@@ -19,12 +19,12 @@ let CharacterSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
-    statPoints: {
-        type: Number,
-        required: true,
-        default: 0
-    },
     statistics: {
+        statPoints: {
+            type: Number,
+            required: true,
+            default: 0
+        },
         health: {
             type: Number,
             default: 1
