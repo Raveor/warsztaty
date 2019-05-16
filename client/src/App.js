@@ -15,6 +15,7 @@ import PrivateRoute from "./components/private-route/PrivateRoute";
 import Dashboard from "./components/dashboard/Dashboard";
 
 import "./App.css";
+import ExpeditionSelectList from "./components/expeditions/ExpeditionSelectList";
 import ExpeditionReportList from "./components/expeditions/ExpeditionReportList";
 
 // Check for token to keep user logged in
@@ -48,6 +49,7 @@ class App extends Component {
             <Route exact path="/login" component={Login} />
             <Switch>
               <PrivateRoute exact path="/dashboard" component={Dashboard} />
+              <PrivateRoute exact path="/expeditions" component={ExpeditionSelectList} />
               <PrivateRoute exact path="/expeditions/reports" component={ExpeditionReportList} />
             </Switch>
           </div>
