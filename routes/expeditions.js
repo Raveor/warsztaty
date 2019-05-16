@@ -171,7 +171,7 @@ router.post('/go', TokenValidator, function (req, res, next) {
 });
 
 router.get('/reports', TokenValidator, function (req, res, next) {
-    ExpeditionRaportModel.find(
+    ExpeditionReportModel.find(
         {
             userId: req.userId
         },
