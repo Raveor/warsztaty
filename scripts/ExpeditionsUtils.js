@@ -11,14 +11,13 @@ class Expedition {
 }
 
 class ExpeditionReport {
-    constructor(userId, name, level, time, whenStarted, moneyPrize, itemPrize) {
+    constructor(userId, name, level, time, whenStarted, moneyPrize) {
         this.userId = userId;
         this.name = name;
         this.whenStarted = whenStarted;
         this.level = level;
         this.time = time;
         this.moneyPrize = moneyPrize;
-        this.itemPrize = itemPrize;
     }
 }
 
@@ -38,6 +37,6 @@ exports.getRandomExpedition = function (userId) {
 };
 
 exports.getReportFromExpedition = function (expedition) {
-    return new ExpeditionReport(expedition.userId, expedition.name, expedition.level, expedition.time, expedition.whenStarted, 666, "")
+    return new ExpeditionReport(expedition.userId, expedition.name, expedition.level, expedition.time, expedition.whenStarted, expedition.moneyPrize)
 };
 
