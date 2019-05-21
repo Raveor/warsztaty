@@ -22,8 +22,8 @@ class ExpeditionReport {
     }
 }
 
-const expeditionNames1 = ["Mroczny", "Daleki", "Zabójczy", "Zapomniany", "Przerażający", "Odległe"];
-const expeditionNames2 = ["Las", "Zamek", "Plac", "Miasto", "Katakumby", "Lochy"];
+const expeditionNames1 = ["Dark", "Far", "Old", "Forgotten", "Frightening"];
+const expeditionNames2 = ["Forest", "Castle", "Square", "Town", "Dungeon"];
 
 exports.getRandomExpedition = function (userId) {
     let randomName1 = expeditionNames1[Math.floor(Math.random() * expeditionNames1.length)];
