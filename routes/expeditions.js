@@ -124,48 +124,70 @@ router.post('/go', TokenValidator, function (req, res, next) {
     }
 
     ExpeditionModel.find(
-        {
-            _id: ObjectId(expeditionId)
-        },
+        {userId: req.userId},
         function (err, expeditions) {
             if (err) {
                 sendApiError(res, 500, "Couldn't download expeditions list: " + err.message);
                 return;
             }
 
-            if (expeditions.length === 0) {
-                sendApiError(res, 500, "Couldn't find expedition with id: " + expeditionId);
-                return;
+            let currentTimestamp = new Date().getTime();
+
+            for (let i = 0; i < expeditions.length; i++) {
+                let e = expeditions[i];
+
+                if (e.whenStarted !== undefined) {
+                    if ((e.whenStarted.getTime() + e.time) > currentTimestamp) {
+                        sendApiError(res, 500, "Couldn't go on more than one expedition");
+                        return;
+                    }
+                }
             }
 
-            let expedition = expeditions[0];
-
-            if (expedition.userId !== userId) {
-                sendApiError(res, 500, "Expedition with id: " + expeditionId + " isn't available for user id: " + userId);
-                return;
-            }
-
-            if (expedition.whenStarted !== undefined) {
-                sendApiError(res, 500, "Expedition with id: " + expeditionId + " was already done or is in progress.");
-                return;
-            }
-
-            let startedDate = new Date().getTime();
-            ExpeditionModel.update(
-                {_id: expedition._id},
-                {whenStarted: startedDate},
-                function (err, data) {
+            ExpeditionModel.find(
+                {
+                    _id: ObjectId(expeditionId)
+                },
+                function (err, expeditions) {
                     if (err) {
-                        sendApiError(res, 500, "Couldn't start expedition with id: " + expeditionId);
+                        sendApiError(res, 500, "Couldn't download expeditions list: " + err.message);
                         return;
                     }
 
-                    if (data.nModified !== 1) {
-                        sendApiError(res, 500, "Couldn't start expedition with id: " + expeditionId);
+                    if (expeditions.length === 0) {
+                        sendApiError(res, 500, "Couldn't find expedition with id: " + expeditionId);
                         return;
                     }
 
-                    sendOkResult(res)
+                    let expedition = expeditions[0];
+
+                    if (expedition.userId !== userId) {
+                        sendApiError(res, 500, "Expedition with id: " + expeditionId + " isn't available for user id: " + userId);
+                        return;
+                    }
+
+                    if (expedition.whenStarted !== undefined) {
+                        sendApiError(res, 500, "Expedition with id: " + expeditionId + " was already done or is in progress.");
+                        return;
+                    }
+
+                    let startedDate = new Date().getTime();
+                    ExpeditionModel.update(
+                        {_id: expedition._id},
+                        {whenStarted: startedDate},
+                        function (err, data) {
+                            if (err) {
+                                sendApiError(res, 500, "Couldn't start expedition with id: " + expeditionId);
+                                return;
+                            }
+
+                            if (data.nModified !== 1) {
+                                sendApiError(res, 500, "Couldn't start expedition with id: " + expeditionId);
+                                return;
+                            }
+
+                            sendOkResult(res)
+                        });
                 });
         });
 });
