@@ -11,19 +11,18 @@ class Expedition {
 }
 
 class ExpeditionReport {
-    constructor(userId, name, level, time, whenStarted, moneyPrize, itemPrize) {
+    constructor(userId, name, level, time, whenStarted, moneyPrize) {
         this.userId = userId;
         this.name = name;
         this.whenStarted = whenStarted;
         this.level = level;
         this.time = time;
         this.moneyPrize = moneyPrize;
-        this.itemPrize = itemPrize;
     }
 }
 
-const expeditionNames1 = ["Mroczny", "Daleki", "Zabójczy", "Zapomniany", "Przerażający", "Odległe"];
-const expeditionNames2 = ["Las", "Zamek", "Plac", "Miasto", "Katakumby", "Lochy"];
+const expeditionNames1 = ["Dark", "Far", "Old", "Forgotten", "Frightening"];
+const expeditionNames2 = ["Forest", "Castle", "Square", "Town", "Dungeon"];
 
 exports.getRandomExpedition = function (userId) {
     let randomName1 = expeditionNames1[Math.floor(Math.random() * expeditionNames1.length)];
@@ -38,6 +37,6 @@ exports.getRandomExpedition = function (userId) {
 };
 
 exports.getReportFromExpedition = function (expedition) {
-    return new ExpeditionReport(expedition.userId, expedition.name, expedition.level, expedition.time, expedition.whenStarted, 666, "")
+    return new ExpeditionReport(expedition.userId, expedition.name, expedition.level, expedition.time, expedition.whenStarted, expedition.moneyPrize)
 };
 

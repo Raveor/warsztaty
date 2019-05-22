@@ -20,7 +20,7 @@ router.use(bodyParser.json());
 router.get('/available', TokenValidator, function (req, res, next) {
     ExpeditionModel.find({userId: req.userId}, function (err, expeditions) {
         if (err) {
-            sendApiError(res, 500, "Wystapil blad przy pobieraniu listy wypraw: " + err.message);
+            sendApiError(res, 500, "Couldn't download expeditions list: " + err.message);
             return;
         }
 
@@ -52,7 +52,7 @@ router.get('/available', TokenValidator, function (req, res, next) {
                                 _id: {$in: objectToDelete}
                             }, function (err) {
                                 if (err) {
-                                    sendApiError(res, 500, "Wystapil blad przy usuwaniu wypraw: " + err.message);
+                                    sendApiError(res, 500, "Couldn't remove expeditions: " + err.message);
                                     return;
                                 }
 
@@ -70,7 +70,7 @@ router.get('/available', TokenValidator, function (req, res, next) {
                                     .then(dep => {
                                         ExpeditionModel.find({userId: req.userId}, function (err, e) {
                                             if (err) {
-                                                sendApiError(res, 500, "Wystapil blad przy pobieraniu listy wypraw: " + err.message);
+                                                sendApiError(res, 500, "Couldn't download expeditions list: " + err.message);
                                                 return;
                                             }
 
@@ -78,12 +78,12 @@ router.get('/available', TokenValidator, function (req, res, next) {
                                         });
                                     })
                                     .catch(err => {
-                                        sendApiError(res, 500, "Wystapil problem przy tworzeniu wyprawy: " + err.message);
+                                        sendApiError(res, 500, "Couldn't create new expeditions: " + err.message);
                                     })
                             })
                 })
                 .catch(err => {
-                    sendApiError(res, 500, "Wystapil problem przy tworzeniu raportow z wypraw: " + err.message);
+                    sendApiError(res, 500, "Couldn't create reports from expeditions: " + err.message);
                 })
         } else {
             if (expeditions.length === config.userExpeditions) {
@@ -99,7 +99,7 @@ router.get('/available', TokenValidator, function (req, res, next) {
                     .then(dep => {
                         ExpeditionModel.find({userId: req.userId}, function (err, e) {
                             if (err) {
-                                sendApiError(res, 500, "Wystapil blad przy pobieraniu listy wypraw: " + err.message);
+                                sendApiError(res, 500, "Couldn't download expeditions list: " + err.message);
                                 return;
                             }
 
@@ -107,7 +107,7 @@ router.get('/available', TokenValidator, function (req, res, next) {
                         });
                     })
                     .catch(err => {
-                        sendApiError(res, 500, "Wystapil problem przy tworzeniu wyprawy: " + err.message);
+                        sendApiError(res, 500, "Couldn't create new expeditions: " + err.message);
                     })
             }
         }
@@ -119,53 +119,75 @@ router.post('/go', TokenValidator, function (req, res, next) {
     let userId = req.userId;
 
     if (expeditionId === undefined) {
-        sendApiError(res, 500, "Pole 'expeditionId' nie moze byc puste");
+        sendApiError(res, 500, "Field 'expeditionId' couldn't be empty.");
         return;
     }
 
     ExpeditionModel.find(
-        {
-            _id: ObjectId(expeditionId)
-        },
+        {userId: req.userId},
         function (err, expeditions) {
             if (err) {
-                sendApiError(res, 500, "Wystapil blad przy pobieraniu wyprawy: " + err.message);
+                sendApiError(res, 500, "Couldn't download expeditions list: " + err.message);
                 return;
             }
 
-            if (expeditions.length === 0) {
-                sendApiError(res, 500, "Nie znaleziono wyprawy o id: " + expeditionId);
-                return;
+            let currentTimestamp = new Date().getTime();
+
+            for (let i = 0; i < expeditions.length; i++) {
+                let e = expeditions[i];
+
+                if (e.whenStarted !== undefined) {
+                    if ((e.whenStarted.getTime() + e.time) > currentTimestamp) {
+                        sendApiError(res, 500, "Couldn't go on more than one expedition");
+                        return;
+                    }
+                }
             }
 
-            let expedition = expeditions[0];
-
-            if (expedition.userId !== userId) {
-                sendApiError(res, 500, "Wyprawa o id: " + expeditionId + " nie jest dostepna dla uzytkowika o id " + userId);
-                return;
-            }
-
-            if (expedition.whenStarted !== undefined) {
-                sendApiError(res, 500, "Wyprawa o id: " + expeditionId + " juz zostala odbyta lub jest w trakcie");
-                return;
-            }
-
-            let startedDate = new Date().getTime();
-            ExpeditionModel.update(
-                {_id: expedition._id},
-                {whenStarted: startedDate},
-                function (err, data) {
+            ExpeditionModel.find(
+                {
+                    _id: ObjectId(expeditionId)
+                },
+                function (err, expeditions) {
                     if (err) {
-                        sendApiError(res, 500, "Wystapil blad przy startowaniu wyprawy o id" + expeditionId);
+                        sendApiError(res, 500, "Couldn't download expeditions list: " + err.message);
                         return;
                     }
 
-                    if (data.nModified !== 1) {
-                        sendApiError(res, 500, "Wystapil blad przy startowaniu wyprawy o id" + expeditionId);
+                    if (expeditions.length === 0) {
+                        sendApiError(res, 500, "Couldn't find expedition with id: " + expeditionId);
                         return;
                     }
 
-                    sendOkResult(res)
+                    let expedition = expeditions[0];
+
+                    if (expedition.userId !== userId) {
+                        sendApiError(res, 500, "Expedition with id: " + expeditionId + " isn't available for user id: " + userId);
+                        return;
+                    }
+
+                    if (expedition.whenStarted !== undefined) {
+                        sendApiError(res, 500, "Expedition with id: " + expeditionId + " was already done or is in progress.");
+                        return;
+                    }
+
+                    let startedDate = new Date().getTime();
+                    ExpeditionModel.update(
+                        {_id: expedition._id},
+                        {whenStarted: startedDate},
+                        function (err, data) {
+                            if (err) {
+                                sendApiError(res, 500, "Couldn't start expedition with id: " + expeditionId);
+                                return;
+                            }
+
+                            if (data.nModified !== 1) {
+                                sendApiError(res, 500, "Couldn't start expedition with id: " + expeditionId);
+                                return;
+                            }
+
+                            sendOkResult(res)
+                        });
                 });
         });
 });
@@ -177,7 +199,7 @@ router.get('/reports', TokenValidator, function (req, res, next) {
         },
         function (err, expeditionsReports) {
             if (err) {
-                sendApiError(res, 500, "Wystapil blad przy pobieraniu raportow z wypraw: " + err.message);
+                sendApiError(res, 500, "Couldn't download expeditions reports: " + err.message);
                 return;
             }
 
