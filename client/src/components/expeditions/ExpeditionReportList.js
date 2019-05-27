@@ -15,7 +15,7 @@ class ExpeditionReportList extends Component {
     loadReports = async () => {
         await axios.get(`/expeditions/available`)
         axios.get(`/expeditions/reports`).then(res => {
-            const reports = res.data;
+            const reports = res.data.reverse();
             const expandedReport = reports.length > 0 ? reports[0]._id : null;
             this.setState({ reports, expandedReport });
         });
