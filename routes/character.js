@@ -77,9 +77,13 @@ router.put('/', TokenValidator, function (req, res) {
                         sendApiError(res, 500, "Wystapil blad przy aktualizowaniu statystyk postaci: " + err.message);
                         return;
                     }
+                    CharacterModel.findOne({userId: ObjectId(userId)}, function (err, character) {
 
-                    sendOkResult(res);
+                        let experienceRequired = CharacterUtils.calcExperienceRequired(character.level);
+                        res.send({character, experienceRequired});
+                    });
                 });
+
 
         });
 });
@@ -121,12 +125,6 @@ router.post('/', TokenValidator, function (req, res) {
 
 
 });
-function sendOkResult(res) {
-    res
-        .status(200)
-        .send(JSON.stringify(ApiUtils.getApiOkResult()))
-        .end();
-}
 
 function sendApiError(res, code, message) {
     res
