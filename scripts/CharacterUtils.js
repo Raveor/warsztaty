@@ -1,5 +1,7 @@
 const config = require('../config');
 
+const CharacterModel = require('../models/Character');
+
 class Character {
     constructor(userId, level, experience, statistics, money, currentHealth) {
         this.userId = userId;
@@ -75,3 +77,44 @@ exports.validateStatistics = function (stats, updatedStats) {
 
     return true;
 };
+
+exports.updateOnFightOrExpedition = function (characterId, money, experience, healthMissing) {
+    CharacterModel.findById(characterId, function (err, character) {
+        if (err) {
+            return Response()
+            sendApiError(res, 500, "Wystapil blad przy pobieraniu postaci: " + err.message);
+            return;
+        }
+
+        if ( !character || typeof character === 'undefined') { 
+            sendApiError(res, 404, "Nie znaleziono postaci o id: " + characterId);
+            return;
+        }
+
+        if (character.currentHealth > healthMissing) {
+            character.currentHealth -= health;    
+        } else {
+            character.currentHealth = 0;
+        }
+        
+        character.experience += experience;
+        while (character.experience >= calcExperienceRequired(updatedCharacter.level)) {
+            character = levelUpCharacter(character);
+        }
+
+        character.money += money;
+
+        CharacterModel.updateOne(
+            {_id: ObjectId(character._id)},
+            character, //passing character object in case of levelup
+            {new: true},
+            function (err, updatedCharacter) {
+                if (err) {
+                    sendApiError(res, 500, "Wystapil blad przy aktualizowaniu statystyk postaci: " + err.message);
+                    return;
+                }
+                return updatedCharacter
+            }
+        )
+    });
+}
