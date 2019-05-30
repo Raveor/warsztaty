@@ -21,7 +21,6 @@ router.get('/weapons', TokenValidator, function (req, res, next) {
     WeaponModel
         .find()
         .then(weapons => {
-            //TODO mozna dodac obsluge dodania nowych broni - jezeli w bazie jest inna ilosc niz w utils - wtedy usun i dodaj od nowa
             if (weapons.length === 0) {
                 WeaponModel
                     .insertMany(ShopUtils.getWeapons())
@@ -107,7 +106,7 @@ router.post('/weapons/buy', TokenValidator, function (req, res, next) {
                                     {money: newMoney}
                                 )
                                 .then(mon => {
-                                    sendOkResult(res)
+                                    res.send(weapon)
                                 })
                                 .catch(reason => {
                                     sendApiError(res, 500, "Couldn't update character money: " + reason.message);
@@ -137,7 +136,6 @@ router.get('/outfits', TokenValidator, function (req, res, next) {
     OutfitModel
         .find()
         .then(outfits => {
-            //TODO mozna dodac obsluge dodania nowych strojow - jezeli w bazie jest inna ilosc niz w utils - wtedy usun i dodaj od nowa
             if (outfits.length === 0) {
                 OutfitModel
                     .insertMany(ShopUtils.getOutfits())
@@ -223,7 +221,7 @@ router.post('/outfits/buy', TokenValidator, function (req, res, next) {
                                     {money: newMoney}
                                 )
                                 .then(mon => {
-                                    sendOkResult(res)
+                                    res.send(outfit)
                                 })
                                 .catch(reason => {
                                     sendApiError(res, 500, "Couldn't update character money: " + reason.message);
@@ -241,13 +239,6 @@ router.post('/outfits/buy', TokenValidator, function (req, res, next) {
             sendApiError(res, 500, "Couldn't download outfit: " + reason.message);
         });
 });
-
-function sendOkResult(res) {
-    res
-        .status(200)
-        .send(JSON.stringify(ApiUtils.getApiOkResult()))
-        .end();
-}
 
 function sendApiError(res, code, message) {
     res
