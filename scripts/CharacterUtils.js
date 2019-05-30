@@ -22,8 +22,7 @@ class Statistics {
 }
 
 exports.calcExperienceRequired = function (level) {
-    let experience = Math.pow(level, 2) / 0.04;
-    return experience;
+    return Math.pow(level, 2) / 0.04;
 };
 
 exports.levelUpCharacter = function (character) {
@@ -55,7 +54,7 @@ exports.createNewCharacter = function (userId) {
     return new Character(userId, level, experience, statistics, money, currentHealth);
 };
 
-exports.validateStatistics = function (stats, updatedStats) { 
+exports.validateStatistics = function (stats, updatedStats) {
     let statPointsDiff = stats.statPoints - updatedStats.statPoints;
     if (statPointsDiff < 0) {
         return false;
