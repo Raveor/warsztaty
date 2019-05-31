@@ -1,5 +1,7 @@
 const config = require('../config');
 
+let ObjectId = require('mongodb').ObjectId;
+
 const CharacterModel = require('../models/Character');
 
 class Character {
@@ -78,10 +80,9 @@ exports.validateStatistics = function (stats, updatedStats) {
     return true;
 };
 
-exports.updateOnFightOrExpedition = function (characterId, money, experience, healthMissing) {
+exports.updateOnFightOrExpedition = function (characterId, money, experience, damageReceived) {
     CharacterModel.findById(characterId, function (err, character) {
         if (err) {
-            return Response()
             sendApiError(res, 500, "Wystapil blad przy pobieraniu postaci: " + err.message);
             return;
         }
@@ -91,15 +92,15 @@ exports.updateOnFightOrExpedition = function (characterId, money, experience, he
             return;
         }
 
-        if (character.currentHealth > healthMissing) {
-            character.currentHealth -= health;    
+        if (character.currentHealth > damageReceived) {
+            character.currentHealth -= damageReceived;    
         } else {
             character.currentHealth = 0;
         }
         
         character.experience += experience;
-        while (character.experience >= calcExperienceRequired(updatedCharacter.level)) {
-            character = levelUpCharacter(character);
+        while (character.experience >= this.calcExperienceRequired(character.level)) {
+            character = this.levelUpCharacter(character);
         }
 
         character.money += money;
@@ -113,8 +114,8 @@ exports.updateOnFightOrExpedition = function (characterId, money, experience, he
                     sendApiError(res, 500, "Wystapil blad przy aktualizowaniu statystyk postaci: " + err.message);
                     return;
                 }
-                return updatedCharacter
+                return updatedCharacter;
             }
-        )
+        );
     });
-}
+};
