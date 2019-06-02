@@ -18,6 +18,8 @@ import "./App.css";
 import ExpeditionSelectList from "./components/expeditions/ExpeditionSelectList";
 import ExpeditionReportList from "./components/expeditions/ExpeditionReportList";
 import Character from "./components/character/Character";
+import ResetPassword from "./components/password-reset/SetNewPasswordForm";
+import ResetEmailForm from "./components/password-reset/ResetEmailForm";
 
 // Check for token to keep user logged in
 if (localStorage.jwtToken) {
@@ -48,11 +50,13 @@ class App extends Component {
             <Route exact path="/" component={Landing} />
             <Route exact path="/register" component={Register} />
             <Route exact path="/login" component={Login} />
+            <Route path="/setNewPassword" component={ResetPassword} />
+            <Route exact path="/passwordReset" component={ResetEmailForm} />
             <Switch>
               <PrivateRoute exact path="/dashboard" component={Dashboard} />
               <PrivateRoute exact path="/expeditions" component={ExpeditionSelectList} />
               <PrivateRoute exact path="/expeditions/reports" component={ExpeditionReportList} />
-                <PrivateRoute exact path="/character" component={Character}/>
+              <PrivateRoute exact path="/character" component={Character}/>
             </Switch>
           </div>
         </Router>

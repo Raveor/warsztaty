@@ -1,32 +1,30 @@
 import React, { Component } from "react";
-import { Link } from "react-router-dom";
+import { Link, withRouter } from "react-router-dom";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { loginUser } from "../../actions/authActions";
+import { setPassword } from "../../actions/authActions";
 import classnames from "classnames";
+import { parse as parseQueryString } from "query-string";
 
-class Login extends Component {
+class ResetPassword extends Component {
   constructor() {
     super();
     this.state = {
-      email: "",
       password: "",
-      errors: {}
+      password2: "",
+      errors: {},
+      success: false
     };
   }
 
   componentDidMount() {
-    // If logged in and user navigates to Login page, should redirect them to dashboard
+    // If logged in user navigates to ResetPassword page, should redirect them to dashboard
     if (this.props.auth.isAuthenticated) {
       this.props.history.push("/dashboard");
     }
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.auth.isAuthenticated) {
-      this.props.history.push("/dashboard");
-    }
-
     if (nextProps.errors) {
       this.setState({
         errors: nextProps.errors
@@ -41,12 +39,12 @@ class Login extends Component {
   onSubmit = e => {
     e.preventDefault();
 
-    const userData = {
-      "email": this.state.email,
-      "password": this.state.password
+    const newPass = {
+      "password": this.state.password,
+      "passwordConfirmation": this.state.password2
     };
 
-    this.props.loginUser(userData);
+    this.props.setPassword(newPass, this.props.history, parseQueryString(this.props.location.search).token);
   };
 
   render() {
@@ -54,7 +52,7 @@ class Login extends Component {
 
     return (
       <div className="container">
-        <div style={{ marginTop: "4rem" }} className="row">
+        <div className="row">
           <div className="col s8 offset-s2">
             <Link to="/" className="btn-flat waves-effect">
               <i className="material-icons left">keyboard_backspace</i> Back to
@@ -62,37 +60,15 @@ class Login extends Component {
             </Link>
             <div className="col s12" style={{ paddingLeft: "11.250px" }}>
               <h4>
-                <b>Login</b> below
+                Enter new password
               </h4>
-              <p className="grey-text text-darken-1">
-                Don't have an account? <Link to="/register">Register</Link>
-              </p>
             </div>
-
             <div className="input-field col s12">
                 <span className="red-text">
                   {(!(Object.entries(errors).length === 0 && errors.constructor === Object)) ? errors.data.message : " " }
                 </span>
             </div>
-
             <form noValidate onSubmit={this.onSubmit}>
-              <div className="input-field col s12">
-                <input
-                  onChange={this.onChange}
-                  value={this.state.email}
-                  error={errors.email}
-                  id="email"
-                  type="email"
-                  className={classnames("", {
-                    invalid: errors.email || errors.emailnotfound
-                  })}
-                />
-                <label htmlFor="email">Email</label>
-                <span className="red-text">
-                  {errors.email}
-                  {errors.emailnotfound}
-                </span>
-              </div>
               <div className="input-field col s12">
                 <input
                   onChange={this.onChange}
@@ -101,16 +77,26 @@ class Login extends Component {
                   id="password"
                   type="password"
                   className={classnames("", {
-                    invalid: errors.password || errors.passwordincorrect
+                    invalid: errors.password
                   })}
                 />
                 <label htmlFor="password">Password</label>
-                <span className="red-text">
-                  {errors.password}
-                  {errors.passwordincorrect}
-                </span>
+                <span className="red-text">{errors.password}</span>
               </div>
-              <Link to="/passwordReset">Forgot password?</Link>
+              <div className="input-field col s12">
+                <input
+                  onChange={this.onChange}
+                  value={this.state.password2}
+                  error={errors.password2}
+                  id="password2"
+                  type="password"
+                  className={classnames("", {
+                    invalid: errors.password2
+                  })}
+                />
+                <label htmlFor="password2">Confirm Password</label>
+                <span className="red-text">{errors.password2}</span>
+              </div>
               <div className="col s12" style={{ paddingLeft: "11.250px" }}>
                 <button
                   style={{
@@ -122,7 +108,7 @@ class Login extends Component {
                   type="submit"
                   className="btn btn-large waves-effect waves-light hoverable blue accent-3"
                 >
-                  Login
+                  Set new password
                 </button>
               </div>
             </form>
@@ -133,8 +119,8 @@ class Login extends Component {
   }
 }
 
-Login.propTypes = {
-  loginUser: PropTypes.func.isRequired,
+ResetPassword.propTypes = {
+  registerUser: PropTypes.func.isRequired,
   auth: PropTypes.object.isRequired,
   errors: PropTypes.object.isRequired
 };
@@ -146,5 +132,5 @@ const mapStateToProps = state => ({
 
 export default connect(
   mapStateToProps,
-  { loginUser }
-)(Login);
+  { setPassword }
+)(withRouter(ResetPassword));
