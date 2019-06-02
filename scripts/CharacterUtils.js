@@ -83,12 +83,10 @@ exports.validateStatistics = function (stats, updatedStats) {
 exports.updateOnFightOrExpedition = function (characterId, money, experience, damageReceived) {
     CharacterModel.findById(characterId, function (err, character) {
         if (err) {
-            sendApiError(res, 500, "Wystapil blad przy pobieraniu postaci: " + err.message);
             return;
         }
 
         if ( !character || typeof character === 'undefined') { 
-            sendApiError(res, 404, "Nie znaleziono postaci o id: " + characterId);
             return;
         }
 
@@ -111,7 +109,6 @@ exports.updateOnFightOrExpedition = function (characterId, money, experience, da
             {new: true},
             function (err, updatedCharacter) {
                 if (err) {
-                    sendApiError(res, 500, "Wystapil blad przy aktualizowaniu statystyk postaci: " + err.message);
                     return;
                 }
                 return updatedCharacter;
