@@ -6,6 +6,7 @@ let ObjectId = require('mongodb').ObjectId;
 
 const CharacterModel = require('../models/Character');
 const ClanModel = require('../models/Clan');
+const ClanCommanderModel = require('../models/ClanCommander');
 const ApiUtils = require('../scripts/ApiUtils');
 
 const TokenValidator = require('../scripts/TokenValidator');
@@ -46,7 +47,9 @@ router.post('/create', TokenValidator, function (req, res, next) {
     }
 
     CharacterModel
-        .findOne({userId: ObjectId(userId)})
+        .findOne(
+            {userId: ObjectId(userId)}
+        )
         .then(character => {
             if (character === undefined) {
                 sendApiError(res, 500, "Couldn't find character with userId: " + userId);
@@ -71,7 +74,40 @@ router.post('/create', TokenValidator, function (req, res, next) {
                             name: clanName
                         })
                         .then(clan => {
-                            res.send("stworzylem klan")
+                            let clanId = clan._id;
+
+                            let query = {
+                                userId: ObjectId(userId)
+                            };
+
+                            CharacterModel
+                                .update(
+                                    query,
+                                    {clanId: clanId},
+                                    function (err, data) {
+                                        if (err) {
+                                            sendApiError(res, 500, "Couldn't attach user to a new clan: " + err.message);
+                                            return;
+                                        }
+
+                                        if (data.nModified !== 1) {
+                                            sendApiError(res, 500, "Attaching user error");
+                                            return;
+                                        }
+
+                                        ClanCommanderModel
+                                            .create({
+                                                clanId: clanId,
+                                                userId: userId
+                                            })
+                                            .then(() => {
+                                                res.send(clan)
+                                            })
+                                            .catch(reason => {
+                                                sendApiError(res, 500, "Couldn't attach user to a new clan commander: " + reason.message);
+                                            });
+                                    }
+                                )
                         })
                         .catch(reason => {
                             sendApiError(res, 500, "Couldn't create a new clan: " + reason.message);
