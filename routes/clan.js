@@ -182,7 +182,7 @@ router.post('/create', TokenValidator, function (req, res, next) {
                 return;
             }
 
-            if (character.clanId !== undefined) {
+            if (character.clanId !== undefined && character.clanId != null) {
                 sendApiError(res, 500, "Couldn't create a new clan when you belong to another clan");
                 return;
             }
