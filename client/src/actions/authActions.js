@@ -17,6 +17,35 @@ export const registerUser = (userData, history) => dispatch => {
     );
 };
 
+// Request password reset
+export const resetEmail = (userData, callback) => dispatch => {
+  axios
+    .post("/auth/resetPassword", userData)
+    .then(callback)
+    .catch(err =>
+      dispatch({
+        type: GET_ERRORS,
+        payload: err.response
+      })
+    );
+};
+
+// Set new password
+export const setPassword = (userData, history, token) => dispatch => {
+  axios
+    .post("/auth/setNewPassword?token=" + token, userData)
+    .then(res => {
+      history.push("/login");
+      alert("Password changed!");
+    })
+    .catch(err =>
+      dispatch({
+        type: GET_ERRORS,
+        payload: err.response
+      })
+    );
+};
+
 // Login - get user token
 export const loginUser = userData => dispatch => {
   axios
