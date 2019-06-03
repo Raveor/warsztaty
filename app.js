@@ -16,6 +16,7 @@ var auth = require('./routes/auth');
 var expeditions = require('./routes/expeditions');
 var shop = require('./routes/shop');
 var character = require('./routes/character');
+var clan = require('./routes/clan');
 var admin = require('./routes/admin');
 var test = require('./routes/test'); //ONLY FOT TESTS
 
@@ -40,6 +41,7 @@ app.use('/auth', auth);
 app.use('/expeditions', expeditions);
 app.use('/shop', shop);
 app.use('/character', character);
+app.use('/clan', clan);
 app.use('/admin', admin);
 app.use('/test', test);
 

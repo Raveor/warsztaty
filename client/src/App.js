@@ -1,10 +1,10 @@
-import React, { Component } from "react";
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import React, {Component} from "react";
+import {BrowserRouter as Router, Route, Switch} from "react-router-dom";
 import jwt_decode from "jwt-decode";
 import setAuthToken from "./utils/setAuthToken";
 
-import { setCurrentUser, logoutUser } from "./actions/authActions";
-import { Provider } from "react-redux";
+import {logoutUser, setCurrentUser} from "./actions/authActions";
+import {Provider} from "react-redux";
 import store from "./store";
 
 import Navbar from "./components/layout/Navbar";
@@ -17,6 +17,7 @@ import Dashboard from "./components/dashboard/Dashboard";
 import "./App.css";
 import ExpeditionSelectList from "./components/expeditions/ExpeditionSelectList";
 import ExpeditionReportList from "./components/expeditions/ExpeditionReportList";
+import Character from "./components/character/Character";
 
 // Check for token to keep user logged in
 if (localStorage.jwtToken) {
@@ -51,6 +52,7 @@ class App extends Component {
               <PrivateRoute exact path="/dashboard" component={Dashboard} />
               <PrivateRoute exact path="/expeditions" component={ExpeditionSelectList} />
               <PrivateRoute exact path="/expeditions/reports" component={ExpeditionReportList} />
+                <PrivateRoute exact path="/character" component={Character}/>
             </Switch>
           </div>
         </Router>
