@@ -59,7 +59,6 @@ class App extends Component {
               <PrivateRoute exact path="/expeditions" component={ExpeditionSelectList} />
               <PrivateRoute exact path="/expeditions/reports" component={ExpeditionReportList} />
               <PrivateRoute exact path="/character" component={Character}/>
-              <PrivateRoute exact path="/character" component={Character}/>
               <AdminRoute exact path="/admin" component={AdminPanel}/>
             </Switch>
           </div>
