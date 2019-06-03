@@ -41,6 +41,16 @@ router.put('/', TokenValidator, function (req, res) {
     
     let updatedCharacter = req.body;
 
+    // CharacterUtils.updateOnFightOrExpedition(characterId, 12,2,0)
+    //     .then(updated => {
+    //         console.log("controller_call " + updated);
+    //         res.send(updated);    
+    //     })
+    //     .catch(err => {
+    //         console.log(err.message);
+            
+    //     });
+    
     CharacterModel.findOne(
         { _id: ObjectId(characterId) },
         function (err, character) {
