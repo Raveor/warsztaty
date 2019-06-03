@@ -18,6 +18,8 @@ import "./App.css";
 import ExpeditionSelectList from "./components/expeditions/ExpeditionSelectList";
 import ExpeditionReportList from "./components/expeditions/ExpeditionReportList";
 import Character from "./components/character/Character";
+import AdminRoute from "./components/private-route/AdminRoute";
+import AdminPanel from "./components/admin/AdminPanel";
 
 // Check for token to keep user logged in
 if (localStorage.jwtToken) {
@@ -52,7 +54,8 @@ class App extends Component {
               <PrivateRoute exact path="/dashboard" component={Dashboard} />
               <PrivateRoute exact path="/expeditions" component={ExpeditionSelectList} />
               <PrivateRoute exact path="/expeditions/reports" component={ExpeditionReportList} />
-                <PrivateRoute exact path="/character" component={Character}/>
+              <PrivateRoute exact path="/character" component={Character}/>
+              <AdminRoute exact path="/admin" component={AdminPanel}/>
             </Switch>
           </div>
         </Router>
