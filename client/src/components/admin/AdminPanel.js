@@ -42,7 +42,7 @@ class AdminPanel extends Component {
 
     setAdmin(_id, admin) {
         axios.put("/admin/users/admin", {_id: _id, setAdmin: admin})
-            .then(response => {
+            .then(() => {
                 this.loadReports();
             })
             .catch(error => {
@@ -58,7 +58,7 @@ class AdminPanel extends Component {
 
     setActive(_id, active) {
         axios.put("/admin/users/active", {_id: _id, setActive: active})
-            .then(response => {
+            .then(() => {
                 this.loadReports();
             })
             .catch(error => {
@@ -74,7 +74,7 @@ class AdminPanel extends Component {
 
     setContact(_id, contact) {
         axios.put("/admin/users/contact", {_id: _id, setContact: contact})
-            .then(response => {
+            .then(() => {
                 this.loadReports();
             })
             .catch(error => {
@@ -90,7 +90,7 @@ class AdminPanel extends Component {
 
     deleteUser(_id) {
         axios.delete("/admin/users/delete", {data: {_id: _id}})
-            .then(response => {
+            .then(() => {
                 this.loadReports();
             })
             .catch(error => {

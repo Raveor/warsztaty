@@ -7,17 +7,6 @@ class UserItem extends Component {
         this.state = {role: {}};
     }
 
-    /*{
-        "adminFlag": false,
-        "contactFlag": true,
-        "activeFlag": true,
-        "_id": "5cbf786a02dd015c0c431ffd",
-        "username": "brennus",
-        "email": "asdad@sfdsf.asfasd",
-        "password": "$2a$08$EF9keKYNfvgxUv2LJJkMNe4huJlliZA2fhdrnoHiQ8Nq/wctqf.ay",
-        "__v": 0
-    },*/
-
     render() {
         let user = this.props.user;
         let admin = user.adminFlag ? "Yes" : "No";
