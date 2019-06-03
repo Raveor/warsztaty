@@ -5,12 +5,15 @@ let CharacterSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     },
+    clanId: {
+        type: String
+    },
     level: {
         type: Number,
         required: true,
         default: 1
     },
-    experience: { 
+    experience: {
         type: Number,
         required: true,
         default: 0
