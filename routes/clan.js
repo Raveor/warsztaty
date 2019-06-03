@@ -270,7 +270,7 @@ router.post('/attach', TokenValidator, function (req, res, next) {
                 return;
             }
 
-            if (character.clanId === undefined) {
+            if (character.clanId === undefined || character.clanId == null) {
                 sendApiError(res, 500, "Couldn't add user to clan when you don't belong to clan");
                 return;
             }
@@ -377,7 +377,7 @@ router.post('/dismiss', TokenValidator, function (req, res, next) {
                 return;
             }
 
-            if (character.clanId === undefined) {
+            if (character.clanId === undefined || character.clanId == null) {
                 sendApiError(res, 500, "Couldn't dismiss player when you don't belong to clan.");
                 return;
             }
@@ -554,7 +554,7 @@ router.post('/promote', TokenValidator, function (req, res, next) {
                 return;
             }
 
-            if (character.clanId === undefined) {
+            if (character.clanId === undefined || character.clanId == null) {
                 sendApiError(res, 500, "Couldn't promote user when you don't belong to clan");
                 return;
             }
