@@ -3,6 +3,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const nodemailer = require ("nodemailer");
 
 const UserModel = require('../models/User');
 const CharacterModel = require('../models/Character');
@@ -13,6 +14,8 @@ const CharacterUtils = require('../scripts/CharacterUtils');
 const config = require('../config');
 
 const TokenValidator = require('../scripts/TokenValidator');
+const NewPasswordTokenValidator = require('../scripts/NewPasswordTokenValidator');
+
 
 const router = express.Router();
 
@@ -22,8 +25,6 @@ router.use(bodyParser.json());
 router.post('/register', function (req, res) {
     let username = req.body.username;
     let email = req.body.email;
-    let password = req.body.password;
-    let passwordConfirmation = req.body.passwordConfirmation;
 
     if (username === undefined) {
         sendApiError(res, 500, "`Username` nie może być puste!");
@@ -45,27 +46,11 @@ router.post('/register', function (req, res) {
         return;
     }
 
-    if (password === undefined) {
-        sendApiError(res, 500, "`Haslo` nie moze byc puste!");
+    let hashedPassword = processNewPassword(req,res);
+
+    if(!hashedPassword){
         return;
     }
-
-    if (password.length < config.minPasswordChars) {
-        sendApiError(res, 500, "`Haslo` musi miec przynajmniej " + config.minPasswordChars + " znakow!");
-        return;
-    }
-
-    if (passwordConfirmation === undefined) {
-        sendApiError(res, 500, "`Potworz haslo` nie moze byc puste!");
-        return;
-    }
-
-    if (passwordConfirmation !== password) {
-        sendApiError(res, 500, "Hasła nie zgadzają się!");
-        return;
-    }
-
-    let hashedPassword = bcrypt.hashSync(password, 8);
 
     UserModel.create(
         {
@@ -125,30 +110,11 @@ router.post('/add/google', TokenValidator, function (req, res) {
 router.post('/add/native', TokenValidator, function (req, res) {
     let userId = req.userId;
 
-    let password = req.body.password;
-    let passwordConfirmation = req.body.passwordConfirmation;
+    let hashedPassword = processNewPassword(req,res);
 
-    if (password === undefined) {
-        sendApiError(res, 500, "`Haslo` nie moze byc puste!");
+    if(!hashedPassword){
         return;
     }
-
-    if (password.length < config.minPasswordChars) {
-        sendApiError(res, 500, "`Haslo` musi miec przynajmniej " + config.minPasswordChars + " znakow!");
-        return;
-    }
-
-    if (passwordConfirmation === undefined) {
-        sendApiError(res, 500, "`Potworz haslo` nie moze byc puste!");
-        return;
-    }
-
-    if (passwordConfirmation !== password) {
-        sendApiError(res, 500, "Hasła nie zgadzają się!");
-        return;
-    }
-
-    let hashedPassword = bcrypt.hashSync(password, 8);
 
     let query = {
         _id: userId,
@@ -172,6 +138,125 @@ router.post('/add/native', TokenValidator, function (req, res) {
             sendOkResult(res);
         });
 });
+
+router.post("/resetPassword", async function(req,res){
+    console.log("got here");
+    let userEmail = req.body.email;
+    console.log(JSON.stringify(req.body,null,4));
+
+    UserModel.findOne(
+        {email: userEmail},
+        function (err, user) {
+            if (err) {
+                sendApiError(res, 500, "Wystąpił błąd: " + err.message);
+                return;
+            }
+
+            if (!user) {
+                sendApiError(res, 404, "Nie odnaleziono uzytkownika z takim adresem e-mail!");
+                return;
+            }
+
+            let transport = nodemailer.createTransport({
+                service: 'SendGrid', // using Gmail didn't work out, so we're using a trial SendGrid account
+                secure: false,
+                auth: {
+                    user: config.SendGridUsername,
+                    pass: config.SendGridPass
+                }
+            });
+            
+            const resetToken = jwt.sign({
+                id: user._id,
+                isAdmin: user.adminFlag,
+                canSetNewPassword: true
+            }, config.jwtSecret, {expiresIn: config.jwtTime});
+
+            const resetLink = `${config.clientHost}/setNewPassword?token=${resetToken}`;
+
+            const mailOptions = {
+                from: config.fromAddress,//mailConfig.username,
+                to: userEmail,
+                subject: 'MERN password reset',
+                text: `Hello ${userEmail}, here's your password reset link: ${resetLink}. The link expires in ${config.jwtTime/3600} hours.`,
+                html: `<p>Hello ${userEmail},</p>
+                <p> here's your password reset link: <a href="${resetLink}">${resetLink}</a>.</p>
+                <p>The link expires in ${config.jwtTime/3600} hours.</p>`
+            };
+
+            transport.sendMail(mailOptions, function (err, result) {
+                if(err){
+                    console.log(err)
+                    sendApiError(res, 500, err);
+                }
+                else{
+                    console.log(result);
+                    sendOkResult(res);
+                }
+             });
+        });
+
+})
+
+router.post("/setNewPassword", NewPasswordTokenValidator, function (req, res){
+    let userId = req.userId;
+
+    let hashedPassword = processNewPassword(req,res);
+
+    if(!hashedPassword){
+        return;
+    }
+
+    let query = {
+        _id: userId
+    };
+
+    UserModel.update(
+        query,
+        {password: hashedPassword},
+        function (err, data) {
+            if (err) {
+                sendApiError(res, 500, "Wystapil problem przy ustawianiu nowego hasla: " + err.message);
+                return;
+            }
+
+            if (data.nModified !== 1) {
+                sendApiError(res, 500, "Wystapil problem przy ustawianiu nowego hasla.");
+                return;
+            }
+
+            sendOkResult(res);
+        });
+
+})
+
+function processNewPassword(req, res){
+
+    let password = req.body.password;
+    let passwordConfirmation = req.body.passwordConfirmation;
+
+    if (password === undefined) {
+        sendApiError(res, 400, "`Haslo` nie moze byc puste!");
+        return "";
+    }
+
+    if (password.length < config.minPasswordChars) {
+        sendApiError(res, 400, "`Haslo` musi miec przynajmniej " + config.minPasswordChars + " znakow!");
+        return "";
+    }
+
+    if (passwordConfirmation === undefined) {
+        sendApiError(res, 400, "`Potworz haslo` nie moze byc puste!");
+        return "";
+    }
+
+    if (passwordConfirmation !== password) {
+        sendApiError(res, 400, "Hasła nie zgadzają się!");
+        return "";
+    }
+
+    return bcrypt.hashSync(password, 8);
+}
 
 router.post('/login', function (req, res) {
     let email = req.body.email;
