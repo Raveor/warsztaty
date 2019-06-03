@@ -34,7 +34,10 @@ export const resetEmail = (userData, callback) => dispatch => {
 export const setPassword = (userData, history, token) => dispatch => {
   axios
     .post("/auth/setNewPassword?token=" + token, userData)
-    .then(res => history.push("/login"))
+    .then(res => {
+      history.push("/login");
+      alert("Password changed!");
+    })
     .catch(err =>
       dispatch({
         type: GET_ERRORS,
