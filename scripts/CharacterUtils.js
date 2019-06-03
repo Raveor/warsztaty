@@ -30,7 +30,7 @@ exports.calcExperienceRequired = function (level) {
 };
 
 exports.levelUpCharacter = function (character) {
-    character.experience = character.experience - this.calcExperienceRequired(character.level);
+    character.experience = character.experience - exports.calcExperienceRequired(character.level);
     character.level += 1;
     
     let statistics = character.statistics;
@@ -80,39 +80,50 @@ exports.validateStatistics = function (stats, updatedStats) {
     return true;
 };
 
-exports.updateOnFightOrExpedition = function (characterId, money, experience, damageReceived) {
-    CharacterModel.findById(characterId, function (err, character) {
-        if (err) {
-            return;
-        }
+exports.updateOnFightOrExpedition = async function (characterId, money, experience, damageReceived) {
+    if (money < 0 || experience < 0 || damageReceived < 0) {
+        return;
+    }
+    
+    return await CharacterModel
+        .findOne(
+            { _id: ObjectId(characterId) }
+        )
+        .exec()
+        .then(async (character) => {
+            let charId = character._id;
 
-        if ( !character || typeof character === 'undefined') { 
-            return;
-        }
-
-        if (character.currentHealth > damageReceived) {
-            character.currentHealth -= damageReceived;    
-        } else {
-            character.currentHealth = 0;
-        }
-        
-        character.experience += experience;
-        while (character.experience >= this.calcExperienceRequired(character.level)) {
-            character = this.levelUpCharacter(character);
-        }
-
-        character.money += money;
-
-        CharacterModel.updateOne(
-            {_id: ObjectId(character._id)},
-            character, //passing character object in case of levelup
-            {new: true},
-            function (err, updatedCharacter) {
-                if (err) {
-                    return;
-                }
-                return updatedCharacter;
+            if ( !character || typeof character === 'undefined') { 
+                return;
             }
-        );
-    });
+
+            if (character.currentHealth > damageReceived) {
+                character.currentHealth -= damageReceived;    
+            } else {
+                character.currentHealth = 0;
+            }
+
+            character.experience += experience;
+            while (character.experience >= exports.calcExperienceRequired(character.level)) {
+                character = exports.levelUpCharacter(character);
+            }
+
+            character.money += money;
+
+            return await CharacterModel.findOneAndUpdate(
+                {_id: ObjectId(charId)},
+                character, //passing character object in case of levelup
+                {new: true}
+            ).exec()
+                .then (updatedCharacter => {
+                    return updatedCharacter;
+                }).catch(reason => {
+                    console.log("error updating character: " + reason.message);
+                    
+                });
+        })
+        .catch(reason => {
+            console.log("Couldnt find character find id: " + characterId + ", err: " + reason.message);
+            
+        });
 };
