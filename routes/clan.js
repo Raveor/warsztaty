@@ -629,6 +629,111 @@ router.post('/promote', TokenValidator, function (req, res, next) {
         });
 });
 
+
+/*
+    Metoda umozliwia doplacanie pieniedzy do konta klanu. Nalezy podac moneyAmount
+ */
+router.post('/pay', TokenValidator, function (req, res, next) {
+    let userId = req.userId;
+    let moneyAmount = req.body.moneyAmount;
+
+    if (moneyAmount === undefined) {
+        sendApiError(res, 500, "Field `moneyAmount` can not be empty");
+        return;
+    }
+
+    let moneyAmountInt = parseInt(moneyAmount);
+
+    if (isNaN(moneyAmountInt) || !isFinite(moneyAmountInt)) {
+        sendApiError(res, 500, "Field `moneyAmount` can not be convert to correct value");
+        return;
+    }
+
+    CharacterModel
+        .findOne(
+            {userId: ObjectId(userId)}
+        )
+        .then(character => {
+            if (character == null) {
+                sendApiError(res, 500, "Couldn't find character with userId: " + userId);
+                return;
+            }
+
+            if (character.clanId === undefined || character.clanId == null) {
+                sendApiError(res, 500, "Couldn't pay money to clan when you don't belong to clan");
+                return;
+            }
+
+            let clanId = character.clanId;
+            let money = character.money;
+
+            if (moneyAmountInt > money) {
+                sendApiError(res, 500, "You don't have enough money. You want to pay " + moneyAmountInt + " but you have only " + money);
+                return;
+            }
+
+            ClanModel
+                .findOne({_id: ObjectId(clanId)})
+                .then(clan => {
+                    if (clan == null) {
+                        sendApiError(res, 500, "Couldn't find clan with clanId: " + clanId);
+                        return;
+                    }
+
+                    let clanMoney = clan.money;
+
+                    let query = {
+                        _id: ObjectId(clanId)
+                    };
+
+                    ClanModel
+                        .update(
+                            query,
+                            {money: clanMoney + moneyAmountInt},
+                            function (err, data) {
+                                if (err) {
+                                    sendApiError(res, 500, "Couldn't update clan money: " + err.message);
+                                    return;
+                                }
+
+                                if (data.nModified !== 1) {
+                                    sendApiError(res, 500, "Updating clan money error");
+                                    return;
+                                }
+
+                                let characterQuery = {
+                                    userId: ObjectId(userId)
+                                };
+
+                                CharacterModel
+                                    .update(
+                                        characterQuery,
+                                        {money: money - moneyAmountInt},
+                                        function (err, data) {
+                                            if (err) {
+                                                sendApiError(res, 500, "Couldn't update character money: " + err.message);
+                                                return;
+                                            }
+
+                                            if (data.nModified !== 1) {
+                                                sendApiError(res, 500, "Updating character money error");
+                                                return;
+                                            }
+
+                                            res.send("ok")
+                                        });
+                            });
+                })
+                .catch(reason => {
+                    sendApiError(res, 500, "Couldn't download clan: " + reason.message);
+                });
+        })
+        .catch(reason => {
+            sendApiError(res, 500, "Couldn't download character: " + reason.message);
+        });
+})
+;
+
 function sendApiError(res, code, message) {
     res
         .status(code)
