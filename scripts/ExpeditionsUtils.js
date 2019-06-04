@@ -11,7 +11,7 @@ class Expedition {
 }
 
 class ExpeditionReport {
-    constructor(userId, name, level, time, whenStarted, moneyPrize, health) {
+    constructor(userId, name, level, time, whenStarted, moneyPrize, health, experience) {
         this.userId = userId;
         this.name = name;
         this.whenStarted = whenStarted;
@@ -19,6 +19,7 @@ class ExpeditionReport {
         this.time = time;
         this.moneyPrize = moneyPrize;
         this.health = health;
+        this.experience = experience;
     }
 }
 
@@ -46,5 +47,7 @@ exports.getReportFromExpedition = function (characterLevel, expedition) {
         health = Math.random().toFixed(2);
     }
 
-    return new ExpeditionReport(expedition.userId, expedition.name, expedition.level, expedition.time, expedition.whenStarted, money, health)
+    let experience = Math.floor(Math.random() * 10) * characterLevel;
+
+    return new ExpeditionReport(expedition.userId, expedition.name, expedition.level, expedition.time, expedition.whenStarted, money, health, experience)
 };
