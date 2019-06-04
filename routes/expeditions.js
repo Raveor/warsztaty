@@ -74,11 +74,11 @@ router.get('/available', TokenValidator, function (req, res, next) {
 
                                                 let newExpeditions = Array();
                                                 expeditionsToDelete.forEach(function (e) {
-                                                    newExpeditions.push(ExpeditionsUtils.getRandomExpedition(req.userId))
+                                                    newExpeditions.push(ExpeditionsUtils.getRandomExpedition(characterLevel, req.userId))
                                                 });
 
                                                 for (let i = expeditions.length + newExpeditions.length; i < config.userExpeditions; i++) {
-                                                    newExpeditions.push(ExpeditionsUtils.getRandomExpedition(req.userId))
+                                                    newExpeditions.push(ExpeditionsUtils.getRandomExpedition(characterLevel, req.userId))
                                                 }
 
                                                 ExpeditionModel
@@ -107,7 +107,7 @@ router.get('/available', TokenValidator, function (req, res, next) {
                             } else {
                                 let listOfExpeditions = Array();
                                 for (let i = expeditions.length; i < config.userExpeditions; i++) {
-                                    listOfExpeditions.push(ExpeditionsUtils.getRandomExpedition(req.userId));
+                                    listOfExpeditions.push(ExpeditionsUtils.getRandomExpedition(characterLevel, req.userId));
                                 }
 
                                 ExpeditionModel

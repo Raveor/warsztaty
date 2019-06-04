@@ -25,14 +25,14 @@ class ExpeditionReport {
 const expeditionNames1 = ["Dark", "Far", "Old", "Forgotten", "Frightening"];
 const expeditionNames2 = ["Forest", "Castle", "Square", "Town", "Dungeon"];
 
-exports.getRandomExpedition = function (userId) {
+exports.getRandomExpedition = function (characterLevel, userId) {
     let randomName1 = expeditionNames1[Math.floor(Math.random() * expeditionNames1.length)];
     let randomName2 = expeditionNames2[Math.floor(Math.random() * expeditionNames2.length)];
 
     let expeditionName = randomName1 + " " + randomName2;
     let expeditionCreatedTime = new Date().getTime();
     let expeditionLevel = 1;
-    let expeditionTime = Math.floor(Math.random() * (config.expeditionMaxTime - config.expeditionMinTime + 1)) + config.expeditionMinTime;
+    let expeditionTime = (Math.floor(Math.random() * (config.expeditionMaxTime - config.expeditionMinTime + 1)) + config.expeditionMinTime) * characterLevel;
 
     return new Expedition(userId, expeditionName, expeditionLevel, expeditionTime, expeditionCreatedTime)
 };
