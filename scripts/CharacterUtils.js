@@ -117,13 +117,6 @@ exports.updateOnFightOrExpedition = async function (characterId, money, experien
             ).exec()
                 .then (updatedCharacter => {
                     return updatedCharacter;
-                }).catch(reason => {
-                    console.log("error updating character: " + reason.message);
-                    
                 });
-        })
-        .catch(reason => {
-            console.log("Couldnt find character find id: " + characterId + ", err: " + reason.message);
-            
         });
 };
