@@ -22,10 +22,12 @@ let ExpeditionReportSchema = new mongoose.Schema({
         required: true
     },
     moneyPrize: {
-        type: Number
+        type: Number,
+        required: true
     },
-    itemPrize: {
-        type: String
+    health: {
+        type: Number,
+        required: true
     }
 });
 mongoose.model('ExpeditionsReports', ExpeditionReportSchema);
