@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, {Component} from "react";
 import PropTypes from "prop-types";
 
 class ExpeditionReportItem extends Component {
@@ -25,7 +25,6 @@ class ExpeditionReportItem extends Component {
             </div>
         ) : (
             <a
-                href="#!"
                 className="collection-item"
                 onClick={() => this.props.expandFunc(report._id)}
             >

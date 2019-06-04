@@ -20,6 +20,8 @@ import ExpeditionReportList from "./components/expeditions/ExpeditionReportList"
 import Character from "./components/character/Character";
 import ResetPassword from "./components/password-reset/SetNewPasswordForm";
 import ResetEmailForm from "./components/password-reset/ResetEmailForm";
+import AdminRoute from "./components/private-route/AdminRoute";
+import AdminPanel from "./components/admin/AdminPanel";
 
 // Check for token to keep user logged in
 if (localStorage.jwtToken) {
@@ -57,6 +59,7 @@ class App extends Component {
               <PrivateRoute exact path="/expeditions" component={ExpeditionSelectList} />
               <PrivateRoute exact path="/expeditions/reports" component={ExpeditionReportList} />
               <PrivateRoute exact path="/character" component={Character}/>
+              <AdminRoute exact path="/admin" component={AdminPanel}/>
             </Switch>
           </div>
         </Router>
