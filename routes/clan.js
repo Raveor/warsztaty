@@ -8,6 +8,7 @@ const CharacterModel = require('../models/Character');
 const UserModel = require('../models/User');
 const ClanModel = require('../models/Clan');
 const ClanCommanderModel = require('../models/ClanCommander');
+const ClanMessageModel = require('../models/ClanMessage');
 const ApiUtils = require('../scripts/ApiUtils');
 
 const TokenValidator = require('../scripts/TokenValidator');
@@ -1231,6 +1232,121 @@ router.post('/upgrade/storage', TokenValidator, function (req, res, next) {
         .catch(reason => {
             sendApiError(res, 500, "Couldn't download character: " + reason.message);
         });
+});
+
+/*
+    Metoda umozliwiajaca wyswietlenie wiadomosci z klanowego chatu. Zwraca obiekt: timestamp, username, message
+ */
+router.get('/chat', TokenValidator, function (req, res, next) {
+    let userId = req.userId;
+    CharacterModel
+        .findOne(
+            {userId: ObjectId(userId)}
+        )
+        .then(character => {
+            if (character == null) {
+                sendApiError(res, 500, "Couldn't find character with userId: " + userId);
+                return;
+            }
+
+            if (character.clanId === undefined || character.clanId == null) {
+                sendApiError(res, 500, "Couldn't add message to clan's chat when you don't belong to clan");
+                return;
+            }
+
+            let clanId = character.clanId;
+
+            UserModel
+                .find()
+                .then(users => {
+                    let usersMap = {};
+
+                    for (let i = 0; i < users.length; i++) {
+                        let user = users[i];
+                        usersMap[user.id] = user.username
+                    }
+
+                    ClanMessageModel
+                        .find({
+                            clanId: clanId
+                        })
+                        .sort({
+                            timestamp: 'desc'
+                        })
+                        .then(messages => {
+                            let modifiedMessages = [];
+
+                            for (let j = 0; j < messages.length; j++) {
+                                let message = messages[j];
+                                modifiedMessages.push({
+                                    "timestamp": message.timestamp,
+                                    "username": usersMap[message.userId],
+                                    "message": message.message
+                                });
+                            }
+
+                            res.send(modifiedMessages)
+                        })
+                        .catch(reason => {
+                            sendApiError(res, 500, "Couldn't download clan chat messages: " + reason.message);
+                        })
+                })
+                .catch(reason => {
+                    sendApiError(res, 500, "Couldn't download users: " + reason.message);
+                });
+        })
+        .catch(reason => {
+            sendApiError(res, 500, "Couldn't download character: " + reason.message);
+        })
+});
+
+/*
+    Metoda umozliwiajaca wyslanie wiadomosci na czat klanowy. Wymaga podania 'message'
+ */
+router.post('/chat/add', TokenValidator, function (req, res, next) {
+    let userId = req.userId;
+    let message = req.body.message;
+
+    if (message === undefined) {
+        sendApiError(res, 500, "Field `message` can not be empty");
+        return;
+    }
+
+    CharacterModel
+        .findOne(
+            {userId: ObjectId(userId)}
+        )
+        .then(character => {
+            if (character == null) {
+                sendApiError(res, 500, "Couldn't find character with userId: " + userId);
+                return;
+            }
+
+            if (character.clanId === undefined || character.clanId == null) {
+                sendApiError(res, 500, "Couldn't add message to clan's chat when you don't belong to clan");
+                return;
+            }
+
+            let clanId = character.clanId;
+            let timestamp = new Date().getTime();
+
+            ClanMessageModel
+                .create({
+                    clanId: clanId,
+                    userId: userId,
+                    timestamp: timestamp,
+                    message: message
+                })
+                .then(message => {
+                    res.send(message)
+                })
+                .catch(reason => {
+                    sendApiError(res, 500, "Couldn't add message to clan's chat: " + reason.message);
+                })
+        })
+        .catch(reason => {
+            sendApiError(res, 500, "Couldn't download character: " + reason.message);
+        })
 });
 
 function sendApiError(res, code, message) {

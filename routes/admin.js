@@ -28,14 +28,14 @@ router.get('/users', AdminTokenValidator, function (req, res) {
 
 /**
  *  Wyłącza lub włącza uprawnienia administracyjne dla użytkownika
- *  Należy przesłać 'accountId' oraz flagę 'setAdmin' z wartością true lub false
+ *  Należy przesłać '_id' oraz flagę 'setAdmin' z wartością true lub false
  */
 router.put('/users/admin', AdminTokenValidator, function (req, res) {
-    let accountId = req.body.accountId;
+    let accountId = req.body._id;
     let setAdmin = req.body.setAdmin;
 
     if (accountId === undefined) {
-        sendApiError(res, 500, "Pole 'accountId' nie moze byc puste");
+        sendApiError(res, 500, "Pole '_id' nie moze byc puste");
         return;
     }
 
@@ -94,14 +94,14 @@ router.put('/users/admin', AdminTokenValidator, function (req, res) {
 
 /**
  *  Aktywuje lub deazktywuje konto uzytkownika
- *  Należy przesłać 'accountId' oraz flagę 'setActive' z wartością true lub false
+ *  Należy przesłać '_id' oraz flagę 'setActive' z wartością true lub false
  */
 router.put('/users/active', AdminTokenValidator, function (req, res) {
-    let accountId = req.body.accountId;
+    let accountId = req.body._id;
     let setActive = req.body.setActive;
 
     if (accountId === undefined) {
-        sendApiError(res, 500, "Pole 'accountId' nie moze byc puste");
+        sendApiError(res, 500, "Pole '_id' nie moze byc puste");
         return;
     }
 
@@ -159,14 +159,14 @@ router.put('/users/active', AdminTokenValidator, function (req, res) {
 
 /**
  *  Wylacza lub wlacza mozliwosc kontaktowania sie przez uzytkownika
- *  Należy przesłać 'accountId' oraz flagę 'setContact' z wartością true lub false
+ *  Należy przesłać '_id' oraz flagę 'setContact' z wartością true lub false
  */
 router.put('/users/contact', AdminTokenValidator, function (req, res) {
-    let accountId = req.body.accountId;
+    let accountId = req.body._id;
     let setContact = req.body.setContact;
 
     if (accountId === undefined) {
-        sendApiError(res, 500, "Pole 'accountId' nie moze byc puste");
+        sendApiError(res, 500, "Pole '_id' nie moze byc puste");
         return;
     }
 
@@ -224,13 +224,13 @@ router.put('/users/contact', AdminTokenValidator, function (req, res) {
 
 /**
  *  Kasuje konto uzytkownika
- *  Należy przesłać 'accountId'
+ *  Należy przesłać '_id'
  */
 router.delete('/users/delete', AdminTokenValidator, function (req, res) {
-    let accountId = req.body.accountId;
+    let accountId = req.body._id;
 
     if (accountId === undefined) {
-        sendApiError(res, 500, "Pole 'accountId' nie moze byc puste");
+        sendApiError(res, 500, "Pole '_id' nie moze byc puste");
         return;
     }
 
