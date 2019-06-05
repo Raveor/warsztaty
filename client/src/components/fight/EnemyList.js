@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, {Component} from "react";
 import axios from "axios";
 
 
@@ -9,7 +9,8 @@ class EnemyList extends Component {
             availableUsers: [],
             enemies: [],
             enemiesMap: new Map(),
-            myCharacter: {}
+            myCharacter: {},
+            loading: true
         };
     }
 
@@ -62,7 +63,7 @@ class EnemyList extends Component {
                 }
 
                 this.setState( () => {
-                    return { enemies: enemies, enemiesMap: enemiesMap };
+                    return {enemies: enemies, enemiesMap: enemiesMap, loading: false};
                 });
         });
     };
@@ -108,6 +109,24 @@ class EnemyList extends Component {
 
 
     render() {
+        if (this.state.loading) {
+            return (
+                <div className="preloader-wrapper big active center loader">
+                    <div className="spinner-layer spinner-blue-only">
+                        <div className="circle-clipper left">
+                            <div className="circle"/>
+                        </div>
+                        <div className="gap-patch">
+                            <div className="circle"/>
+                        </div>
+                        <div className="circle-clipper right">
+                            <div className="circle"/>
+                        </div>
+                    </div>
+                </div>
+            )
+        }
+
         return <ul className="collection">{this.state.enemies}</ul>
     }
 }
