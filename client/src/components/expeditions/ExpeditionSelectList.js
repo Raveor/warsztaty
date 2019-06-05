@@ -7,7 +7,7 @@ class ExpeditionSelectList extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            currentExpeditions: [],
+            currentExpedition: null,
             availableExpeditions: [],
             error: null
         };
@@ -20,17 +20,17 @@ class ExpeditionSelectList extends Component {
             // console.log(JSON.stringify(response, null, 2));
             const expeditions = response.data;
             // console.log(JSON.stringify(expeditions, null, 2));
-            let currentExpeditions = [];
+            let currentExpedition = null;
             let availableExpeditions = [];
             for (const expedition of expeditions) {
                 if (expedition.whenStarted) {
-                    currentExpeditions.push(expedition);
+                    currentExpedition = expedition;
                 } else {
                     availableExpeditions.push(expedition);
                 }
             }
             this.setState({
-                currentExpeditions,
+                currentExpedition,
                 availableExpeditions,
                 error: null
             });
@@ -44,7 +44,12 @@ class ExpeditionSelectList extends Component {
     };
 
     goFunc = async expeditionId => {
-        await axios.post("/expeditions/go", { expeditionId });
+        try {
+            await axios.post("/expeditions/go", { expeditionId });
+        } catch (error) {
+            console.log(error);
+            alert("There was a problem processing your action")
+        }
         await this.reloadExpeditions();
     };
 
@@ -58,23 +63,22 @@ class ExpeditionSelectList extends Component {
                 </div>
             );
         } else {
+            let currentExpedition = this.state.currentExpedition;
             let current =
-                this.state.currentExpeditions.length > 0 ? (
+                currentExpedition ? (
                     <ul className="collection">
                         <li className="collection-item collection-header">
-                            <h3>Current expeditions</h3>
+                            <h3>Current expedition</h3>
                         </li>
-                        {this.state.currentExpeditions.map(expedition => (
-                            <CurrentExpeditionItem
-                                key={expedition._id}
-                                expedition={expedition}
-                                reloadExpeditions={this.reloadExpeditions}
-                            />
-                        ))}
+                        <CurrentExpeditionItem
+                            key={currentExpedition._id}
+                            expedition={currentExpedition}
+                            reloadExpeditions={this.reloadExpeditions}
+                        />
                     </ul>
                 ) : (
-                    <div />
-                );
+                        <div />
+                    );
             let available =
                 this.state.availableExpeditions.length > 0 ? (
                     <ul className="collection">
@@ -85,13 +89,14 @@ class ExpeditionSelectList extends Component {
                             <AvailableExpeditionItem
                                 key={expedition._id}
                                 expedition={expedition}
+                                canGo={!this.state.currentExpedition}
                                 goFunc={this.goFunc}
                             />
                         ))}
                     </ul>
                 ) : (
-                    <div />
-                );
+                        <div />
+                    );
             return (
                 <div className="container">
                     {current}
