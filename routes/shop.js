@@ -125,6 +125,207 @@ router.post('/weapons/buy', TokenValidator, function (req, res, next) {
         });
 });
 
+router.get('/inventory', TokenValidator, function (req, res, next) {
+    let userId = req.userId;
+
+    WeaponModel
+        .find()
+        .then(weapons => {
+            OutfitModel
+                .find()
+                .then(outfits => {
+                    InventoryModel
+                        .find({userId: userId})
+                        .then(items => {
+                            let weaponsMap = {};
+                            let outfitsMap = {};
+                            for (let i = 0; i < weapons.length; i++) {
+                                let w = weapons[i];
+                                weaponsMap[w.weaponId] = w;
+                            }
+                            for (let i = 0; i < outfits.length; i++) {
+                                let o = outfits[i];
+                                outfitsMap[o.outfitId] = o;
+                            }
+
+                            let userItems = [];
+                            for (let i = 0; i < items.length; i++) {
+                                let item = items[i];
+                                if (item.itemCategory === "W") {
+                                    userItems.push({
+                                        _id: item._id,
+                                        weaponId: weaponsMap[item.itemId].weaponId,
+                                        name: weaponsMap[item.itemId].name,
+                                        price: weaponsMap[item.itemId].price,
+                                        defence: weaponsMap[item.itemId].defence,
+                                        offence: weaponsMap[item.itemId].offence,
+                                        bonus: weaponsMap[item.itemId].bonus,
+                                        minLevel: weaponsMap[item.itemId].minLevel
+                                    })
+                                } else {
+                                    userItems.push({
+                                        _id: item._id,
+                                        outfitId: outfitsMap[item.itemId].outfitId,
+                                        name: outfitsMap[item.itemId].name,
+                                        price: outfitsMap[item.itemId].price,
+                                        defence: outfitsMap[item.itemId].defence,
+                                        offence: outfitsMap[item.itemId].offence,
+                                        bonus: outfitsMap[item.itemId].bonus,
+                                        minLevel: outfitsMap[item.itemId].minLevel
+                                    })
+                                }
+                            }
+
+                            res.send(userItems)
+                        })
+                        .catch(reason => {
+                            sendApiError(res, 500, "Couldn't download inventory: " + reason.message);
+                        })
+                })
+                .catch(reason => {
+                    sendApiError(res, 500, "Couldn't download outfits: " + reason.message);
+                });
+
+        })
+        .catch(reason => {
+            sendApiError(res, 500, "Couldn't download weapons: " + reason.message);
+        });
+});
+
+router.post('/inventory/sell', TokenValidator, function (req, res, next) {
+    let userId = req.userId;
+    let itemId = req.body.itemId;
+
+    if (itemId === undefined) {
+        sendApiError(res, 500, "Field 'itemId' couldn't be empty.");
+        return;
+    }
+
+    InventoryModel
+        .find({userId: userId, _id: ObjectId(itemId)})
+        .then(items => {
+
+            if (items.length !== 1) {
+                sendApiError(res, 500, "Error with inventory item");
+                return;
+            }
+
+            let item = items[0];
+            let localId = item.itemId;
+
+            if (item.itemCategory === "W") {
+                WeaponModel
+                    .find()
+                    .then(weapons => {
+                        for (let i = 0; i < weapons.length; i++) {
+                            let weapon = weapons[i];
+                            if (weapon.weaponId === localId) {
+                                CharacterModel
+                                    .find({userId: ObjectId(userId)})
+                                    .then(characters => {
+                                        if (characters.length !== 1) {
+                                            sendApiError(res, 500, "Couldn't find character with userId: " + userId);
+                                            return;
+                                        }
+                                        let newMoney = characters[0].money + weapon.price;
+
+                                        let query = {
+                                            userId: ObjectId(userId),
+                                        };
+
+                                        CharacterModel
+                                            .update(
+                                                query,
+                                                {money: newMoney}
+                                            )
+                                            .then(mon => {
+                                                InventoryModel
+                                                    .remove(
+                                                        {_id: ObjectId(itemId)}
+                                                        , function (err) {
+                                                            if (err) {
+                                                                sendApiError(res, 500, "Couldn't remove item.");
+                                                                return;
+                                                            }
+
+                                                            res.send("ok");
+                                                        });
+                                            })
+                                            .catch(reason => {
+                                                sendApiError(res, 500, "Couldn't update character money: " + reason.message);
+                                            });
+                                    })
+                                    .catch(reason => {
+                                        sendApiError(res, 500, "Couldn't download character: " + reason.message);
+                                    });
+                                return;
+                            }
+                        }
+                        sendApiError(res, 500, "Couldn't sell item");
+                    })
+                    .catch(reason => {
+                        sendApiError(res, 500, "Couldn't download weapons: " + reason.message);
+                    })
+            } else {
+                OutfitModel
+                    .find()
+                    .then(outfits => {
+                        for (let i = 0; i < outfits.length; i++) {
+                            let outfit = outfits[i];
+                            if (outfit.outfitId === localId) {
+                                CharacterModel
+                                    .find({userId: ObjectId(userId)})
+                                    .then(characters => {
+                                        if (characters.length !== 1) {
+                                            sendApiError(res, 500, "Couldn't find character with userId: " + userId);
+                                            return;
+                                        }
+                                        let newMoney = characters[0].money + outfit.price;
+
+                                        let query = {
+                                            userId: ObjectId(userId),
+                                        };
+
+                                        CharacterModel
+                                            .update(
+                                                query,
+                                                {money: newMoney}
+                                            )
+                                            .then(mon => {
+                                                InventoryModel
+                                                    .remove(
+                                                        {_id: ObjectId(itemId)}
+                                                        , function (err) {
+                                                            if (err) {
+                                                                sendApiError(res, 500, "Couldn't remove item.");
+                                                                return;
+                                                            }
+
+                                                            res.send("ok");
+                                                        });
+                                            })
+                                            .catch(reason => {
+                                                sendApiError(res, 500, "Couldn't update character money: " + reason.message);
+                                            });
+                                    })
+                                    .catch(reason => {
+                                        sendApiError(res, 500, "Couldn't download character: " + reason.message);
+                                    });
+                                return;
+                            }
+                        }
+                        sendApiError(res, 500, "Couldn't sell item");
+                    })
+                    .catch(reason => {
+                        sendApiError(res, 500, "Couldn't download weapons: " + reason.message);
+                    })
+            }
+        })
+        .catch(reason => {
+            sendApiError(res, 500, "Couldn't download inventory: " + reason.message);
+        })
+});
+
 /*
     Pobiera liste dostepnych ubran w sklepie. Kazde ubranie ma jedna z kategorii:
     A(rmour) - zbroje

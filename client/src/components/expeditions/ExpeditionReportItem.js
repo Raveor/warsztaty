@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, {Component} from "react";
 import PropTypes from "prop-types";
 
 class ExpeditionReportItem extends Component {
@@ -17,15 +17,15 @@ class ExpeditionReportItem extends Component {
                 </span>
                 <p>Level {report.level}</p>
                 <p>
-                    Loot:<br />
-                    {report.moneyPrize || 0} gold<br />
-                    {report.itemPrize || ""}<br />
+                    Loot: {report.moneyPrize || 0} gold<br />
+                    Experience: {report.experience || 0} XP<br />
+                    {report.health ? `Health lost: ${report.health * 100}%` : ""}<br />
                     <i className="grey-text">{endDate}</i>
                 </p>
             </div>
         ) : (
+            // eslint-disable-next-line jsx-a11y/anchor-is-valid
             <a
-                href="#!"
                 className="collection-item"
                 onClick={() => this.props.expandFunc(report._id)}
             >
