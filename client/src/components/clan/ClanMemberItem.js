@@ -35,7 +35,7 @@ class ClanMemberItem extends Component {
                 >
                     <h4>{member.userId.username}</h4>
                     <h5>Level: {member.level}</h5>
-                    {isUserCommander ? <h5>Commander</h5> : ""}
+                    {isMemberCommander ? <h5>Commander</h5> : ""}
                 </span>
 
                     <div className="col s3 right">
@@ -54,7 +54,7 @@ class ClanMemberItem extends Component {
                 <div>
                     {member.userId.username}
                     <div className="secondary-content mr-10">
-                        {isUserCommander ? "Commander " : ""}
+                        {isMemberCommander ? "Commander " : ""}
                         Level: {member.level}
                     </div>
                 </div>

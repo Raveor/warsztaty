@@ -6,6 +6,7 @@ import {GET_ERRORS} from "../../actions/types";
 import {connect} from "react-redux";
 import PropTypes from "prop-types";
 import AddNewMember from "./AddNewMember";
+import ClanBuilding from "./ClanBuilding";
 
 class Clan extends Component {
     constructor(props) {
@@ -15,6 +16,8 @@ class Clan extends Component {
         this.deleteMember = this.deleteMember.bind(this);
         this.setCommander = this.setCommander.bind(this);
         this.leave = this.leave.bind(this);
+        this.incrementFunc = this.incrementFunc.bind(this);
+        this.incrementMoneyFunc = this.incrementMoneyFunc.bind(this);
         this.state = {
             _id: null,
             isClanExists: true,
@@ -23,6 +26,7 @@ class Clan extends Component {
             expand: null,
             isMemberOfClan: false,
             members: [],
+            buildings: {},
             data: {
                 clanName: ""
             },
@@ -34,12 +38,15 @@ class Clan extends Component {
     }
 
     componentDidMount() {
-        const {clanName} = this.props.location.state ? this.props.location.state : "";
+        const {clanName, clan} = this.props.location.state ? this.props.location.state : "";
 
         if (clanName && clanName.length > 0) {
             this.setState({
                 ...this.state,
-                clanName: clanName
+                clanName: clanName,
+                buildings: clan.buildings,
+                money: clan.money,
+                isClanExists: true
             });
             this.getMembers(clanName);
         } else {
@@ -50,7 +57,10 @@ class Clan extends Component {
                     if (clan) {
                         this.setState({
                             ...this.state,
-                            clanName: clan.name
+                            clanName: clan.name,
+                            money: clan.money,
+                            buildings: clan.buildings,
+                            isClanExists: false
                         });
                         this.getMembers(clan.name);
                     } else {
@@ -63,7 +73,7 @@ class Clan extends Component {
                 .catch(err => {
                     this.setState({
                         ...this.state,
-                        isClanExisting: false,
+                        isClanExists: false,
                         loading: false
                     });
                     dispatch({
@@ -178,6 +188,13 @@ class Clan extends Component {
         if (this.validateForm(this.state.errors)) {
             axios
                 .post('/clan/create', this.state.data)
+                .then(() => {
+                    this.setState({
+                        ...this.state,
+                        clanName: this.state.data.clanName
+                    });
+                    this.reload();
+                })
                 .catch(errors => {
                     this.setState({
                             ...this.state,
@@ -187,18 +204,43 @@ class Clan extends Component {
                 });
         }
 
-        this.setState({
-            ...this.state,
-            data: {
-                clanName: ""
-            },
-            errors: {
-                clanName: ""
-            }
-        });
-        this.props.history.push("/clan");
 
     };
+
+    incrementFunc(key, stat, value = 1) {
+        let money = this.state.money;
+        axios
+            .post("/clan/upgrade/" + key)
+            .then(response => {
+                this.setState(prevState => ({
+                    buildings: {
+                        ...prevState.buildings,
+                        [key]: stat + 1,
+                    },
+                    money: money - ((value + 1) * 1000)
+                }));
+            })
+            .catch(error => {
+                console.log(error);
+            });
+    }
+
+    incrementMoneyFunc(key, stat, value = 1) {
+        let newMoney;
+        axios
+            .post("/clan/pay", {moneyAmount: value})
+            .then(response => {
+                newMoney = response.data.money;
+                this.setState({
+                    ...this.state,
+                    money: newMoney
+                })
+            })
+            .catch(error => {
+                console.log(error);
+            })
+
+    }
 
     setCommander(username) {
         axios.post("/clan/promote", {username: username})
@@ -258,7 +300,7 @@ class Clan extends Component {
                         setCommander={this.setCommander}
                     />
                 ))
-            ) : this.state.isClanExisting ? (
+            ) : this.state.isClanExists ? (
                 <div className="collection-item ">
                     <div className="row">
                 <span
@@ -324,8 +366,56 @@ class Clan extends Component {
             </button>
         ) : "";
 
+        let buildings = [];
 
-        return (
+        Object.entries(this.state.buildings).forEach(([key, val]) => {
+            buildings.push(<ClanBuilding
+                key={key}
+                building={key}
+                value={val}
+                isMoney={false}
+                isMemberCommander={isUserCommander}
+                incrementFunc={this.incrementFunc}
+                incrementMoneyFunc={this.incrementMoneyFunc}
+            />);
+        });
+
+        buildings.push(<ClanBuilding
+            key={"money"}
+            building={"money"}
+            value={this.state.money}
+            isMoney={true}
+            isMemberCommander={true}
+            incrementFunc={this.incrementFunc}
+            incrementMoneyFunc={this.incrementMoneyFunc}
+        />);
+
+
+        return isMemberOfClan ? (
+            <div className="container row" style={{backgroundColor: "white"}}>
+                <div className="col s5">
+                    <ul className="collection">
+                        <li className="collection-item collection-header card-panel grey lighten-5 z-depth-1">
+                            <h3>Buldings</h3>
+                        </li>
+                        {buildings}
+                    </ul>
+                </div>
+                <div className="col s7">
+                    <ul className="collection">
+                        <li className="collection-item collection-header card-panel grey lighten-5 z-depth-1">
+                            <h3>Members</h3>
+                        </li>
+                        {members}
+                        {addNewMember}
+                    </ul>
+                    <div className="row center">
+                        {leave}
+                    </div>
+                </div>
+
+            </div>
+        ) : (
             <div className="container">
                 <div className="collection">
                     <div className="collection-item collection-header">

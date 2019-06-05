@@ -9,7 +9,7 @@ class ClanItem extends Component {
         let buildings = [];
         Object.entries(clan.buildings).forEach(([key, val]) => {
             buildings.push(
-                <p>{key[0].toUpperCase() + key.slice(1)}: {val} Lvl</p>
+                <p key={key}>{key[0].toUpperCase() + key.slice(1)}: {val} Lvl</p>
             )
         });
 
@@ -25,7 +25,7 @@ class ClanItem extends Component {
                 </span>
 
                     <div className="col s3 right">
-                        <Link to={
+                        <Link key={clan._id + 2} to={
                             {
                                 pathname: '/clan/show',
                                 state: {
