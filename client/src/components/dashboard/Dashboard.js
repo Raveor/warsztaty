@@ -46,6 +46,17 @@ class Dashboard extends Component {
                         >
                             Character
                         </button>
+                        <button
+                            style={{
+                                width: "150px",
+                                borderRadius: "3px",
+                                marginTop: "1rem"
+                            }}
+                            onClick={() => this.props.history.push("/shop")}
+                            className="btn btn-large waves-effect waves-light hoverable accent-3"
+                        >
+                            Shop
+                        </button>
                         <br></br>
                         <button
                             style={{
