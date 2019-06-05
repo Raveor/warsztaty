@@ -14,17 +14,20 @@ class Shop extends Component {
         axios.all([
             axios.get('/shop/weapons'),
             axios.get('/shop/outfits'),
-            axios.get('/shop/inventory')
+            axios.get('/shop/inventory'),
+            axios.get('/character'),
         ])
             .then((response) => {
                 const weapons = response[0].data;
                 const outfits = response[1].data;
                 const inventory = response[2].data;
+                const character = response[3].data;
 
                 this.setState({
                     weapons: weapons,
                     outfits: outfits,
                     inventory: inventory,
+                    character: character,
                     "loading": false
                 });
             })
@@ -46,9 +49,7 @@ class Shop extends Component {
                 })
             })
             .catch(err => {
-                    this.setState({
-                        error: err.response.data.message
-                    })
+                    alert(err.response.data.message)
                     // dispatch({
                     //     type: GET_ERRORS,
                     //     payload: err.response
@@ -66,9 +67,7 @@ class Shop extends Component {
                 })
             })
             .catch(err => {
-                    this.setState({
-                        error: err.response.data.message
-                    })
+                    alert(err.response.data.message)
                     // dispatch({
                     //     type: GET_ERRORS,
                     //     payload: err.response
@@ -86,9 +85,7 @@ class Shop extends Component {
                 })
             })
             .catch(err => {
-                    this.setState({
-                        error: err.response.data.message
-                    })
+                    alert(err.response.data.message)
                     // dispatch({
                     //     type: GET_ERRORS,
                     //     payload: err.response
@@ -220,6 +217,13 @@ class Shop extends Component {
 
         return (
             <div className="container row" style={{backgroundColor: "white"}}>
+                <div className="col s12">
+                    <ul className="collection">
+                        <li className="collection-item collection-header card-panel grey lighten-5 z-depth-1">
+                            <h3>You have {this.state.character.character.money} coins</h3>
+                        </li>
+                    </ul>
+                </div>
                 <div className="col s6">
                     <ul className="collection">
                         <li className="collection-item collection-header card-panel grey lighten-5 z-depth-1">
