@@ -1,4 +1,5 @@
 ﻿'use strict';
+const mongoose = require('mongoose');
 const express = require('express');
 const router = express.Router();
 
@@ -37,10 +38,36 @@ router.get('/', TokenValidator, function (req, res, next) {
 });
 
 /*
-    Zwraca liste czlonkow klanu (mapa userId -> username). Nalezy podac clanName
+    Zwraca klan do którego należymy
+ */
+router.get('/my', TokenValidator, function (req, res, next) {
+    CharacterModel
+        .find({userId: mongoose.Types.ObjectId(req.userId)})
+        .then(character => {
+            if (character.length > 0) {
+                ClanModel.findById(character[0].clanId).then(clan => {
+                    if (clan === null) {
+                        sendApiError(res, 500, "You don't belong to clan");
+                    }
+                    res.send(clan);
+                })
+                    .catch(reason => {
+                        sendApiError(res, 500, "Couldn't find clan " + reason.message);
+                    });
+            } else {
+
+            }
+        })
+        .catch(reason => {
+            sendApiError(res, 500, "Couldn't find user " + reason.message);
+        });
+});
+
+/*
+    Zwraca liste czlonkow klanu jako Character model. Nalezy podac clanName jako param.
  */
 router.get('/members', TokenValidator, function (req, res, next) {
-    let clanName = req.body.clanName;
+    let clanName = req.query.clanName;
 
     if (clanName === undefined) {
         sendApiError(res, 500, "Field `clanName` can not be empty");
@@ -63,32 +90,9 @@ router.get('/members', TokenValidator, function (req, res, next) {
                 .find({
                     clanId: clanId
                 })
+                .populate('userId')
                 .then(charactersInClan => {
-                    UserModel
-                        .find()
-                        .then(users => {
-                            let usersMap = {};
-
-                            for (let i = 0; i < users.length; i++) {
-                                let user = users[i];
-                                usersMap[user.id] = user.username
-                            }
-
-                            let clanMembers = {};
-
-
-                            for (let i = 0; i < charactersInClan.length; i++) {
-                                let character = charactersInClan[i];
-                                let userId = character.userId;
-
-                                clanMembers[userId] = usersMap[userId];
-                            }
-
-                            res.send(clanMembers)
-                        })
-                        .catch(reason => {
-                            sendApiError(res, 500, "Couldn't download user list: " + reason.message);
-                        });
+                    res.send(charactersInClan);
                 })
                 .catch(reason => {
                     sendApiError(res, 500, "Couldn't download character list: " + reason.message);
@@ -100,10 +104,10 @@ router.get('/members', TokenValidator, function (req, res, next) {
 });
 
 /*
-    Zwraca liste dowódców klanu (mapa userId -> username). Nalezy podac clanName
+    Zwraca liste dowódców klanu jako listę Character. Nalezy podac clanName jako param
  */
 router.get('/commanders', TokenValidator, function (req, res, next) {
-    let clanName = req.body.clanName;
+    let clanName = req.query.clanName;
 
     if (clanName === undefined) {
         sendApiError(res, 500, "Field `clanName` can not be empty");
@@ -127,30 +131,8 @@ router.get('/commanders', TokenValidator, function (req, res, next) {
                     clanId: clanId
                 })
                 .then(commandersInClan => {
-                    UserModel
-                        .find()
-                        .then(users => {
-                            let usersMap = {};
+                    res.send(commandersInClan)
 
-                            for (let i = 0; i < users.length; i++) {
-                                let user = users[i];
-                                usersMap[user.id] = user.username
-                            }
-
-                            let clanCommanders = {};
-
-                            for (let i = 0; i < commandersInClan.length; i++) {
-                                let character = commandersInClan[i];
-                                let userId = character.userId;
-
-                                clanCommanders[userId] = usersMap[userId];
-                            }
-
-                            res.send(clanCommanders)
-                        })
-                        .catch(reason => {
-                            sendApiError(res, 500, "Couldn't download user list: " + reason.message);
-                        });
                 })
                 .catch(reason => {
                     sendApiError(res, 500, "Couldn't download character list: " + reason.message);
@@ -164,7 +146,7 @@ router.get('/commanders', TokenValidator, function (req, res, next) {
 /*
     Tworzy klan. Nalezy podac unikalne clanName. Uzytkownik nie moze nalezec do zadnego klanu kiedy chce utworzyc nowy klan.
  */
-router.post('/create', TokenValidator, function (req, res, next) {
+router.post('/create', TokenValidator, function (req, res) {
     let userId = req.userId;
     let clanName = req.body.clanName;
 
