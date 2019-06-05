@@ -11,6 +11,7 @@ const ExpeditionModel = require('../models/Expedition');
 const ExpeditionReportModel = require('../models/ExpeditionReport');
 const ExpeditionsUtils = require('../scripts/ExpeditionsUtils');
 const ApiUtils = require('../scripts/ApiUtils');
+const CharacterUtils = require('../scripts/CharacterUtils');
 
 const TokenValidator = require('../scripts/TokenValidator');
 
@@ -30,7 +31,7 @@ router.get('/available', TokenValidator, function (req, res, next) {
                 return;
             }
 
-            let characterLevel = character.level;
+            let characterHealth = character.currentHealth;
 
             ExpeditionModel
                 .find({userId: req.userId},
@@ -54,60 +55,91 @@ router.get('/available', TokenValidator, function (req, res, next) {
                         if (expeditionsToDelete.length > 0) {
                             let listOfReports = Array();
                             expeditionsToDelete.forEach(function (e) {
-                                listOfReports.push(ExpeditionsUtils.getReportFromExpedition(characterLevel, e));
+                                let report = ExpeditionsUtils.getReportFromExpedition(character.level, e);
+
+                                character.money = character.money + report.moneyPrize;
+                                character.experience = character.experience + report.experience;
+
+                                characterHealth = Math.ceil(characterHealth - (characterHealth * report.health));
+
+                                listOfReports.push(report);
                             });
 
-                            ExpeditionReportModel
-                                .insertMany(listOfReports)
-                                .then(dep => {
-                                    let objectToDelete = expeditionsToDelete.map(value => ObjectId(value._id));
+                            if (characterHealth < 0) {
+                                characterHealth = 0;
+                            }
 
-                                    ExpeditionModel
-                                        .deleteMany(
-                                            {
-                                                _id: {$in: objectToDelete}
-                                            }, function (err) {
-                                                if (err) {
-                                                    sendApiError(res, 500, "Couldn't remove expeditions: " + err.message);
-                                                    return;
-                                                }
+                            character.currentHealth = characterHealth;
 
-                                                let newExpeditions = Array();
-                                                expeditionsToDelete.forEach(function (e) {
-                                                    newExpeditions.push(ExpeditionsUtils.getRandomExpedition(characterLevel, req.userId))
-                                                });
+                            while (character.experience >= CharacterUtils.calcExperienceRequired(character.level)) {
+                                character = CharacterUtils.levelUpCharacter(character);
+                            }
 
-                                                for (let i = expeditions.length + newExpeditions.length; i < config.userExpeditions; i++) {
-                                                    newExpeditions.push(ExpeditionsUtils.getRandomExpedition(characterLevel, req.userId))
-                                                }
+                            let characterLevel = character.level;
 
-                                                ExpeditionModel
-                                                    .insertMany(newExpeditions)
-                                                    .then(dep => {
-                                                        ExpeditionModel.find({userId: req.userId}, function (err, e) {
-                                                            if (err) {
-                                                                sendApiError(res, 500, "Couldn't download expeditions list: " + err.message);
-                                                                return;
-                                                            }
+                            CharacterModel
+                                .findOneAndUpdate(
+                                    {_id: ObjectId(character._id)},
+                                    character,
+                                    {new: true}
+                                )
+                                .exec()
+                                .then(updatedCharacter => {
+                                    ExpeditionReportModel
+                                        .insertMany(listOfReports)
+                                        .then(dep => {
+                                            let objectToDelete = expeditionsToDelete.map(value => ObjectId(value._id));
 
-                                                            res.send(e);
+                                            ExpeditionModel
+                                                .deleteMany(
+                                                    {
+                                                        _id: {$in: objectToDelete}
+                                                    }, function (err) {
+                                                        if (err) {
+                                                            sendApiError(res, 500, "Couldn't remove expeditions: " + err.message);
+                                                            return;
+                                                        }
+
+                                                        let newExpeditions = Array();
+                                                        expeditionsToDelete.forEach(function (e) {
+                                                            newExpeditions.push(ExpeditionsUtils.getRandomExpedition(characterLevel, req.userId))
                                                         });
+
+                                                        for (let i = expeditions.length + newExpeditions.length; i < config.userExpeditions; i++) {
+                                                            newExpeditions.push(ExpeditionsUtils.getRandomExpedition(characterLevel, req.userId))
+                                                        }
+
+                                                        ExpeditionModel
+                                                            .insertMany(newExpeditions)
+                                                            .then(dep => {
+                                                                ExpeditionModel.find({userId: req.userId}, function (err, e) {
+                                                                    if (err) {
+                                                                        sendApiError(res, 500, "Couldn't download expeditions list: " + err.message);
+                                                                        return;
+                                                                    }
+
+                                                                    res.send(e);
+                                                                });
+                                                            })
+                                                            .catch(err => {
+                                                                sendApiError(res, 500, "Couldn't create new expeditions: " + err.message);
+                                                            })
                                                     })
-                                                    .catch(err => {
-                                                        sendApiError(res, 500, "Couldn't create new expeditions: " + err.message);
-                                                    })
-                                            })
+                                        })
+                                        .catch(err => {
+                                            sendApiError(res, 500, "Couldn't create reports from expeditions: " + err.message);
+                                        })
                                 })
-                                .catch(err => {
-                                    sendApiError(res, 500, "Couldn't create reports from expeditions: " + err.message);
-                                })
+                                .catch(reason => {
+                                    sendApiError(res, 500, "Couldn't update character: " + err.message);
+                                });
                         } else {
                             if (expeditions.length === config.userExpeditions) {
                                 res.send(expeditions);
                             } else {
                                 let listOfExpeditions = Array();
                                 for (let i = expeditions.length; i < config.userExpeditions; i++) {
-                                    listOfExpeditions.push(ExpeditionsUtils.getRandomExpedition(characterLevel, req.userId));
+                                    listOfExpeditions.push(ExpeditionsUtils.getRandomExpedition(character.level, req.userId));
                                 }
 
                                 ExpeditionModel

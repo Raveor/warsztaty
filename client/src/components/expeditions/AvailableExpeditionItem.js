@@ -15,12 +15,12 @@ const AvailableExpeditionItem = props => {
 
             <div className="secondary-content">
                 {moment.duration(expedition.time).humanize() + "  "}
-                <button
+                {props.canGo ? (<button
                     className="waves-effect waves-light btn-small"
                     onClick={() => props.goFunc(expedition._id)}
                 >
                     Go<i className="material-icons right">send</i>
-                </button>
+                </button>) : (<div></div>)}
             </div>
         </li>
     );
@@ -28,7 +28,8 @@ const AvailableExpeditionItem = props => {
 
 AvailableExpeditionItem.propTypes = {
     expedition: PropTypes.object.isRequired,
-    goFunc: PropTypes.func.isRequired
+    goFunc: PropTypes.func.isRequired,
+    canGo: PropTypes.bool
 };
 
 export default AvailableExpeditionItem;
