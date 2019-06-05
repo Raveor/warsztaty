@@ -18,9 +18,10 @@ class EnemyList extends Component {
         this.loadMyCharacter();
     }
 
-    loadMyCharacter = () => {
+    loadMyCharacter(){
         axios.get('/character')
             .then( result => {
+                console.log(result.data.character.currentHealth);
                 this.setState( () => {
                     return { myCharacter: result.data.character };
                 })
@@ -67,27 +68,42 @@ class EnemyList extends Component {
     };
 
     fight(userId) {
-        console.log("fight " + userId);
+        // console.log("fight " + userId);
         let oponent = this.state.enemiesMap.get(userId);
         let my = this.state.myCharacter;
 
-        console.log(my.statistics);
+        if(my.currentHealth <= 0){
+            alert("You have too low health! Wait a moment!");
+            return;
+        }
+
+        // console.log(my.statistics);
         if(oponent != null) {
             let oponentDamage = oponent.statistics.strength - my.statistics.agility;
             let myDamage = my.statistics.strength - oponent.statistics.agility;
 
             if (oponentDamage >= myDamage) {
-                EnemyList.lost(oponentDamage);
-            } else EnemyList.won();
+                my.currentHealth -= oponentDamage;
+                this.lost(my, oponentDamage);
+            } else {
+                my.experience += myDamage * 2;
+                this.won(my, myDamage * 2);
+            }
         }
     }
 
-    static lost() {
-        alert("You lost!");
+    lost(my, damage) {
+        alert("You lost " + damage + "hp!");
+
+        axios.put('/character',  my);
+        this.loadMyCharacter();
     }
 
-    static won(){
-        alert("You won!");
+    won(my, exp){
+        alert("You won! Exp gained: " + exp);
+
+        axios.put('/character', my );
+        this.loadMyCharacter();
     }
 
 
