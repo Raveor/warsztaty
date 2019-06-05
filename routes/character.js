@@ -15,6 +15,26 @@ const router = express.Router();
 router.use(bodyParser.urlencoded({ extended: false }));
 router.use(bodyParser.json());
 
+router.get('/others', TokenValidator, function(req, res){
+    let userId = req.userId;
+
+    CharacterModel.find(  { userId: { $ne: userId } },
+        function (err, character) {
+            if (err) {
+                sendApiError(res, 500, "Wystapil blad przy pobieraniu statystyk postaci: " + err.message);
+                return;
+            }
+
+            if (!character || typeof character === 'undefined') {
+                sendApiError(res, 404, "Nie znaleziono postaci dla uzytkownika o id: " + userId);
+                return;
+            }
+
+            let experienceRequired = CharacterUtils.calcExperienceRequired(character.level);
+            res.send({character, experienceRequired});
+        });
+});
+
 router.get('/', TokenValidator, function (req, res) {
     let userId = req.userId;
     CharacterModel.findOne({ userId: ObjectId(userId) },

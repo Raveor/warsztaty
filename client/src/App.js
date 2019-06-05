@@ -21,6 +21,8 @@ import Character from "./components/character/Character";
 import ResetPassword from "./components/password-reset/SetNewPasswordForm";
 import ResetEmailForm from "./components/password-reset/ResetEmailForm";
 
+import EnemyList from "./components/fight/EnemyList";
+
 // Check for token to keep user logged in
 if (localStorage.jwtToken) {
   // Set auth token header auth
@@ -57,6 +59,7 @@ class App extends Component {
               <PrivateRoute exact path="/expeditions" component={ExpeditionSelectList} />
               <PrivateRoute exact path="/expeditions/reports" component={ExpeditionReportList} />
               <PrivateRoute exact path="/character" component={Character}/>
+              <PrivateRoute exact path="/fight" component={EnemyList}/>
             </Switch>
           </div>
         </Router>
