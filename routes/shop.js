@@ -152,9 +152,27 @@ router.get('/inventory', TokenValidator, function (req, res, next) {
                             for (let i = 0; i < items.length; i++) {
                                 let item = items[i];
                                 if (item.itemCategory === "W") {
-                                    userItems.push(weaponsMap[item.itemId])
+                                    userItems.push({
+                                        _id: item._id,
+                                        weaponId: weaponsMap[item.itemId].weaponId,
+                                        name: weaponsMap[item.itemId].name,
+                                        price: weaponsMap[item.itemId].price,
+                                        defence: weaponsMap[item.itemId].defence,
+                                        offence: weaponsMap[item.itemId].offence,
+                                        bonus: weaponsMap[item.itemId].bonus,
+                                        minLevel: weaponsMap[item.itemId].minLevel
+                                    })
                                 } else {
-                                    userItems.push(outfitsMap[item.itemId])
+                                    userItems.push({
+                                        _id: item._id,
+                                        outfitId: outfitsMap[item.itemId].outfitId,
+                                        name: outfitsMap[item.itemId].name,
+                                        price: outfitsMap[item.itemId].price,
+                                        defence: outfitsMap[item.itemId].defence,
+                                        offence: outfitsMap[item.itemId].offence,
+                                        bonus: outfitsMap[item.itemId].bonus,
+                                        minLevel: outfitsMap[item.itemId].minLevel
+                                    })
                                 }
                             }
 
@@ -187,7 +205,6 @@ router.post('/inventory/sell', TokenValidator, function (req, res, next) {
         .find({userId: userId, _id: ObjectId(itemId)})
         .then(items => {
 
-            console.log(items)
             if (items.length !== 1) {
                 sendApiError(res, 500, "Error with inventory item");
                 return;

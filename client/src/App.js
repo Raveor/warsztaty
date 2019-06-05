@@ -18,6 +18,7 @@ import "./App.css";
 import ExpeditionSelectList from "./components/expeditions/ExpeditionSelectList";
 import ExpeditionReportList from "./components/expeditions/ExpeditionReportList";
 import Character from "./components/character/Character";
+import Shop from "./components/shop/Shop";
 import ResetPassword from "./components/password-reset/SetNewPasswordForm";
 import ResetEmailForm from "./components/password-reset/ResetEmailForm";
 import AdminRoute from "./components/private-route/AdminRoute";
@@ -61,6 +62,7 @@ class App extends Component {
               <PrivateRoute exact path="/expeditions" component={ExpeditionSelectList} />
               <PrivateRoute exact path="/expeditions/reports" component={ExpeditionReportList} />
               <PrivateRoute exact path="/character" component={Character}/>
+              <PrivateRoute exact path="/shop" component={Shop}/>
               <AdminRoute exact path="/admin" component={AdminPanel}/>
               <PrivateRoute exac path="/clan/show" component={Clan}/>
               <PrivateRoute exac path="/clan" component={ClanList}/>
