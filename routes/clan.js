@@ -703,7 +703,7 @@ router.post('/pay', TokenValidator, function (req, res, next) {
                                                 return;
                                             }
 
-                                            res.send("ok")
+                                            res.send({money: clanMoney + moneyAmountInt})
                                         });
                             });
                 })
