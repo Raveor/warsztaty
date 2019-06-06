@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import axios from "axios";
 import {applyMiddleware as dispatch} from "redux";
 import {GET_ERRORS} from "../../actions/types";
+import { ItemDisplay } from '../items/ItemDisplay';
 
 class Shop extends Component {
     constructor(props) {
@@ -127,7 +128,7 @@ class Shop extends Component {
                 .forEach(weapon => {
                     weaponsList
                         .push(
-                            <ShopItem item={weapon} action={this.buyWeapon}></ShopItem>
+                            <ItemDisplay item={weapon} action={{func: this.buyWeapon, name: "Buy"}}></ItemDisplay>
                         );
                 });
         }
@@ -142,7 +143,7 @@ class Shop extends Component {
                 .forEach(outfit => {
                     outfitsList
                         .push(
-                            <ShopItem item={outfit} action={this.buyOutfit}></ShopItem>
+                            <ItemDisplay item={outfit} action={{func: this.buyOutfit, name: "Buy"}}></ItemDisplay>
                         );
                 });
         }
@@ -157,7 +158,7 @@ class Shop extends Component {
                 .forEach(item => {
                     inventoryList
                         .push(
-                            <ShopItem item={item} action={this.sellItem}></ShopItem>
+                            <ItemDisplay item={item} action={{func: this.sellItem, name: "Sell"}}></ItemDisplay>
                         );
                 });
         }
@@ -201,28 +202,5 @@ class Shop extends Component {
     }
 }
 
-
-const ShopItem = props => {
-    return (
-        <li className="collection-item collection-fit-buttons-properly">
-            <div>
-                <b>{props.item.name}</b>
-                <ul>
-                    <li>Defence: {props.item.defence}</li>
-                    <li>Offence: {props.item.offence}</li>
-                    <li>Bonus: {props.item.bonus}</li>
-                </ul>
-            </div>
-            <div className="secondary-content valign-wrapper">
-                <button
-                    className="center waves-effect waves-light btn-large"
-                    onClick={() => props.action(props.item)}
-                >
-                    {props.item.price}<i className="material-icons right">send</i>
-                </button>
-            </div>
-        </li>
-    );
-};
 
 export default Shop;

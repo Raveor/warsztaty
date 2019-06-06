@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import axios from "axios";
 import { applyMiddleware as dispatch } from "redux";
 import { GET_ERRORS } from "../../actions/types";
+import { ItemDisplay } from "../items/ItemDisplay";
 
 class Inventory extends Component {
     constructor(props) {
@@ -40,14 +41,7 @@ class Inventory extends Component {
                 })
                 .forEach(item => {
                     inventoryList.push(
-                        <li className="collection-item">
-                            <b>{item.name}</b>
-                            <ul>
-                                <li>Defence: {item.defence}</li>
-                                <li>Offence: {item.offence}</li>
-                                <li>Bonus: {item.bonus}</li>
-                            </ul>
-                        </li>
+                        <ItemDisplay item={item} />
                     );
                 });
         }
