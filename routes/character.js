@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 let ObjectId = require('mongodb').ObjectId;
 
 const CharacterModel = require('../models/Character');
+const InventoryModel = require('../models/Inventory');
 const ApiUtils = require('../scripts/ApiUtils');
 const CharacterUtils = require('../scripts/CharacterUtils');
 
@@ -24,13 +25,13 @@ router.get('/', TokenValidator, function (req, res) {
                 return;
             }
 
-            if ( !character || typeof character === 'undefined') { 
+            if (!character || typeof character === 'undefined') {
                 sendApiError(res, 404, "Nie znaleziono postaci dla uzytkownika o id: " + userId);
                 return;
             }
 
             let experienceRequired = CharacterUtils.calcExperienceRequired(character.level);
-            res.send({ character, experienceRequired});
+            res.send({ character, experienceRequired });
         });
 });
 
@@ -38,7 +39,7 @@ router.put('/', TokenValidator, function (req, res) {
     let characterId = req.body._id;
 
     let userId = req.userId;
-    
+
     let updatedCharacter = req.body;
 
     CharacterModel.findOne(
@@ -49,7 +50,7 @@ router.put('/', TokenValidator, function (req, res) {
                 return;
             }
 
-            if ( !character || typeof character === 'undefined') { 
+            if (!character || typeof character === 'undefined') {
                 sendApiError(res, 404, "Nie znaleziono postaci o id: " + characterId);
                 return;
             }
@@ -77,10 +78,10 @@ router.put('/', TokenValidator, function (req, res) {
                         sendApiError(res, 500, "Wystapil blad przy aktualizowaniu statystyk postaci: " + err.message);
                         return;
                     }
-                    CharacterModel.findOne({userId: ObjectId(userId)}, function (err, character) {
+                    CharacterModel.findOne({ userId: ObjectId(userId) }, function (err, character) {
 
                         let experienceRequired = CharacterUtils.calcExperienceRequired(character.level);
-                        res.send({character, experienceRequired});
+                        res.send({ character, experienceRequired });
                     });
                 });
 
@@ -122,8 +123,109 @@ router.post('/', TokenValidator, function (req, res) {
                 });
         });
 
+});
 
+router.put('/equip', TokenValidator, function (req, res) {
+    let userId = req.userId;
+    let itemId = req.body.itemId;
 
+    InventoryModel.find(
+        { itemId: itemId })
+        .then(items => {
+            if (items.length !== 1) {
+                sendApiError(res, 500, "Couldn't find item with id: " + itemId);
+                return;
+            }
+            let itemClass = items[0].itemClass;
+            InventoryModel.find(
+                {
+                    itemClass: itemClass,
+                    userId: userId
+                }
+            ).then(itemsEquipped => {
+                // if (itemsEquipped.length === 1) {
+                //     InventoryModel.update({itemId: itemsEquipped[0].itemId },
+                //         {equipped: false})
+                //         .then(() => {
+                //             return;
+                //         })
+                //         .catch(err => {
+                //             sendApiError("Couldn't unequip already equipped item: " + err.message);
+                //         });
+                // } else 
+                if (itemsEquipped.length > 1) { //think I can do both in one version (loop)
+                    itemsEquipped.forEach(element => {
+                        InventoryModel.update({ itemId: element.itemId, userId: userId },
+                            { equipped: false })
+                            .then(() => {
+                                return;
+                            })
+                            .catch(err => {
+                                sendApiError("Couldn't unequip already equipped item: " + err.message);
+                            });
+                    });
+                }
+                InventoryModel.update({
+                    itemId: itemId,
+                    userId: userId},
+                { equipped: true },
+                function (err, data) {
+                    if (err) {
+                        sendApiError(res, 500, "Couldn't equip item: " + err.message);
+                        return;
+                    }
+
+                    if (data.nModified !== 1) {
+                        sendApiError(res, 500, "Updating (Equipping) item error");
+                        return;
+                    }
+
+                    res.send(data[0]);
+                });
+            }).catch(err => {
+                sendApiError(res, 500, "Couldn't find items of this class for user: " + err.message);
+            });
+        }).catch(err => {
+            sendApiError(res, 500, "Couldn't download item: " + err.message);
+        });
+    return;
+});
+
+router.put('/unequip', TokenValidator, function (req, res) {
+    let userId = req.userId;
+    let itemId = req.body.itemId;
+
+    InventoryModel.find({
+        itemId: itemId,
+        userId: userId }
+    ).then(items => {
+        if (items.length !== 1) {
+            sendApiError(res, 500, "Couldn't find item with id: " + itemId);
+            return;
+        }
+        if (items[0].equipped === false) {
+            sendApiError(res, 500, "Item already not equipped, item id: " + itemId);
+            return;
+        } 
+
+        InventoryModel.update(
+            {itemId: itemId, userId: userId},
+            { equipped: true },
+            function (err, data) {
+                if (err) {
+                    sendApiError(res, 500, "Couldn't unequip item with id: " + itemId);
+                    return;
+                }
+                if (data.nModified !== 1) {
+                    sendApiError(res, 500, "Updating (unequipping) item error");
+                    return;
+                }
+                res.send(data[0]);
+            }
+        );
+    }).catch(err => {
+        sendApiError(res, 500, "Couldn't download item: " + err.message);
+    });
 });
 
 function sendApiError(res, code, message) {

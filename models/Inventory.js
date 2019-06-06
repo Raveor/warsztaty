@@ -12,6 +12,11 @@ let InventorySchema = new mongoose.Schema({
     itemCategory: {
         type: String,
         required: true
+    },
+    equipped: {
+        type: Boolean,
+        required: true,
+        default: false
     }
 });
 mongoose.model('Inventory', InventorySchema);
