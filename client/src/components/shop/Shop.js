@@ -44,9 +44,9 @@ class Shop extends Component {
             );
     }
 
-    buyWeapon(weaponId) {
+    buyWeapon = (weapon) => {
         axios
-            .post('/shop/weapons/buy', {weaponId: weaponId})
+            .post('/shop/weapons/buy', {weaponId: weapon.weaponId})
             .then(() => {
                 this.pullData();
             })
@@ -60,9 +60,9 @@ class Shop extends Component {
             );
     }
 
-    buyOutfit(outfitId) {
+    buyOutfit = (outfit) => {
         axios
-            .post('/shop/outfits/buy', {outfitId: outfitId})
+            .post('/shop/outfits/buy', {outfitId: outfit.outfitId})
             .then(() => {
                 this.pullData();
             })
@@ -76,9 +76,9 @@ class Shop extends Component {
             );
     }
 
-    sellItem(itemId) {
+    sellItem = (item) => {
         axios
-            .post('/shop/inventory/sell', {itemId: itemId})
+            .post('/shop/inventory/sell', {itemId: item._id})
             .then(() => {
                 this.pullData();
             })
@@ -127,24 +127,7 @@ class Shop extends Component {
                 .forEach(weapon => {
                     weaponsList
                         .push(
-                            <tr>
-                                <td>
-                                    <b>{weapon.name}</b>
-                                    <ul>
-                                        <li>Defence: {weapon.defence}</li>
-                                        <li>Offence: {weapon.offence}</li>
-                                        <li>Bonus: {weapon.bonus}</li>
-                                    </ul>
-                                </td>
-                                <td>
-                                    <button
-                                        className="center waves-effect waves-light btn-large"
-                                        onClick={() => this.buyWeapon(weapon.weaponId)}
-                                    >
-                                        {weapon.price}<i className="material-icons right">send</i>
-                                    </button>
-                                </td>
-                            </tr>
+                            <ShopItem item={weapon} action={this.buyWeapon}></ShopItem>
                         );
                 });
         }
@@ -159,24 +142,7 @@ class Shop extends Component {
                 .forEach(outfit => {
                     outfitsList
                         .push(
-                            <tr>
-                                <td>
-                                    <b>{outfit.name}</b>
-                                    <ul>
-                                        <li>Defence: {outfit.defence}</li>
-                                        <li>Offence: {outfit.offence}</li>
-                                        <li>Bonus: {outfit.bonus}</li>
-                                    </ul>
-                                </td>
-                                <td>
-                                    <button
-                                        className="center waves-effect waves-light btn-large"
-                                        onClick={() => this.buyOutfit(outfit.outfitId)}
-                                    >
-                                        {outfit.price}<i className="material-icons right">send</i>
-                                    </button>
-                                </td>
-                            </tr>
+                            <ShopItem item={outfit} action={this.buyOutfit}></ShopItem>
                         );
                 });
         }
@@ -191,24 +157,7 @@ class Shop extends Component {
                 .forEach(item => {
                     inventoryList
                         .push(
-                            <tr>
-                                <td>
-                                    <b>{item.name}</b>
-                                    <ul>
-                                        <li>Defence: {item.defence}</li>
-                                        <li>Offence: {item.offence}</li>
-                                        <li>Bonus: {item.bonus}</li>
-                                    </ul>
-                                </td>
-                                <td>
-                                    <button
-                                        className="center waves-effect waves-light btn-large"
-                                        onClick={() => this.sellItem(item._id)}
-                                    >
-                                        {item.price}<i className="material-icons right">send</i>
-                                    </button>
-                                </td>
-                            </tr>
+                            <ShopItem item={item} action={this.sellItem}></ShopItem>
                         );
                 });
         }
@@ -251,5 +200,33 @@ class Shop extends Component {
         );
     }
 }
+
+
+const ShopItem = props => {
+    return (
+        <li className="collection-item" style={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-between"
+        }}>
+            <div>
+                <b>{props.item.name}</b>
+                <ul>
+                    <li>Defence: {props.item.defence}</li>
+                    <li>Offence: {props.item.offence}</li>
+                    <li>Bonus: {props.item.bonus}</li>
+                </ul>
+            </div>
+            <div className="secondary-content valign-wrapper">
+                <button
+                    className="center waves-effect waves-light btn-large"
+                    onClick={() => props.action(props.item)}
+                >
+                    {props.item.price}<i className="material-icons right">send</i>
+                </button>
+            </div>
+        </li>
+    );
+};
 
 export default Shop;
