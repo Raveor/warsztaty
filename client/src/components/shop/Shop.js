@@ -11,6 +11,10 @@ class Shop extends Component {
 
     componentDidMount() {
         console.log("componentDidMount")
+        this.pullData();
+    }
+
+    pullData = () => {
         axios.all([
             axios.get('/shop/weapons'),
             axios.get('/shop/outfits'),
@@ -44,9 +48,7 @@ class Shop extends Component {
         axios
             .post('/shop/weapons/buy', {weaponId: weaponId})
             .then(() => {
-                this.setState({
-                    "handler": Math.random()
-                })
+                this.pullData();
             })
             .catch(err => {
                     alert(err.response.data.message)
@@ -62,9 +64,7 @@ class Shop extends Component {
         axios
             .post('/shop/outfits/buy', {outfitId: outfitId})
             .then(() => {
-                this.setState({
-                    "handler": Math.random()
-                })
+                this.pullData();
             })
             .catch(err => {
                     alert(err.response.data.message)
@@ -80,9 +80,7 @@ class Shop extends Component {
         axios
             .post('/shop/inventory/sell', {itemId: itemId})
             .then(() => {
-                this.setState({
-                    "handler": Math.random()
-                })
+                this.pullData();
             })
             .catch(err => {
                     alert(err.response.data.message)
