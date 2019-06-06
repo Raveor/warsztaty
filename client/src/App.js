@@ -25,6 +25,7 @@ import AdminRoute from "./components/private-route/AdminRoute";
 import AdminPanel from "./components/admin/AdminPanel";
 import ClanList from "./components/clan/ClanList";
 import Clan from "./components/clan/Clan";
+import ChatList from "./components/clan/ChatList";
 
 // Check for token to keep user logged in
 if (localStorage.jwtToken) {
@@ -65,6 +66,7 @@ class App extends Component {
               <PrivateRoute exact path="/shop" component={Shop}/>
               <AdminRoute exact path="/admin" component={AdminPanel}/>
               <PrivateRoute exac path="/clan/show" component={Clan}/>
+              <PrivateRoute exac path="/clan/chat" component={ChatList}/>
               <PrivateRoute exac path="/clan" component={ClanList}/>
             </Switch>
           </div>

@@ -366,6 +366,20 @@ class Clan extends Component {
             </button>
         ) : "";
 
+        let chat = isMemberOfClan ? (
+            <button
+                style={{
+                    width: "150px",
+                    borderRadius: "3px",
+                    marginTop: "1rem"
+                }}
+                onClick={() => this.props.history.push("/clan/chat")}
+                className="btn btn-large waves-effect waves-light hoverable accent-3"
+            >
+                Chat
+            </button>
+        ) : "";
+
         let buildings = [];
 
         Object.entries(this.state.buildings).forEach(([key, val]) => {
@@ -411,6 +425,7 @@ class Clan extends Component {
                     </ul>
                     <div className="row center">
                         {leave}
+                        {chat}
                     </div>
                 </div>
 
@@ -425,7 +440,7 @@ class Clan extends Component {
                     </div>
                 </div>
                 {leave}
-
+                {chat}
             </div>
         );
     }
