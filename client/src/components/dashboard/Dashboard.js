@@ -62,6 +62,29 @@ class Dashboard extends Component {
                             style={{
                                 width: "150px",
                                 borderRadius: "3px",
+                                marginTop: "1rem"
+                            }}
+                            onClick={() => this.props.history.push("/clan")}
+                            className="btn btn-large waves-effect waves-light hoverable accent-3"
+                        >
+                            Clans
+                        </button>
+                        <button
+                            style={{
+                                width: "150px",
+                                borderRadius: "3px",
+                                marginTop: "1rem"
+                            }}
+                            onClick={() => this.props.history.push("/clan/show")}
+                            className="btn btn-large waves-effect waves-light hoverable accent-3"
+                        >
+                            My clan
+                        </button>
+                        <br/>
+                        <button
+                            style={{
+                                width: "150px",
+                                borderRadius: "3px",
                                 letterSpacing: "1.5px",
                                 marginTop: "1rem"
                             }}

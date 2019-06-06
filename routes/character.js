@@ -38,11 +38,18 @@ router.put('/', TokenValidator, function (req, res) {
     let characterId = req.body._id;
 
     let userId = req.userId;
-    
+
+    let query;
+    if (characterId) {
+        query = {_id: ObjectId(characterId)};
+    } else {
+        query = {userId: Object(userId)}
+    }
+
     let updatedCharacter = req.body;
 
     CharacterModel.findOne(
-        { _id: ObjectId(characterId) },
+        query,
         function (err, character) {
             if (err) {
                 sendApiError(res, 500, "Wystapil blad przy pobieraniu postaci: " + err.message);
