@@ -3,6 +3,7 @@ import axios from "axios";
 import {applyMiddleware as dispatch} from "redux";
 import {GET_ERRORS} from "../../actions/types";
 import StatisticsItem from "./StatisticsItem";
+import Inventory from './Inventory';
 
 class Character extends Component {
     constructor(props) {
@@ -182,7 +183,7 @@ class Character extends Component {
                         </button>
                     </div>
                 </div>
-
+                <Inventory />
             </div>
         );
     }
