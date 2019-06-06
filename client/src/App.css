@@ -6,3 +6,8 @@
     left: 0;
     right: 0;
 }
+.collection-fit-buttons-properly {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}

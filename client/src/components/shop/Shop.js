@@ -204,11 +204,7 @@ class Shop extends Component {
 
 const ShopItem = props => {
     return (
-        <li className="collection-item" style={{
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "space-between"
-        }}>
+        <li className="collection-item collection-fit-buttons-properly">
             <div>
                 <b>{props.item.name}</b>
                 <ul>
