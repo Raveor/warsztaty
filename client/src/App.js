@@ -27,6 +27,8 @@ import ClanList from "./components/clan/ClanList";
 import Clan from "./components/clan/Clan";
 import ChatList from "./components/clan/ChatList";
 
+import EnemyList from "./components/fight/EnemyList";
+
 // Check for token to keep user logged in
 if (localStorage.jwtToken) {
   // Set auth token header auth
@@ -68,6 +70,7 @@ class App extends Component {
               <PrivateRoute exac path="/clan/show" component={Clan}/>
               <PrivateRoute exac path="/clan/chat" component={ChatList}/>
               <PrivateRoute exac path="/clan" component={ClanList}/>
+              <PrivateRoute exact path="/fight" component={EnemyList}/>
             </Switch>
           </div>
         </Router>
