@@ -1,40 +1,91 @@
 import React, {Component} from "react";
-import {Link} from "react-router-dom";
+import {Link, Switch} from "react-router-dom";
 import PropTypes from "prop-types";
+import connect from "react-redux/es/connect/connect";
+import {logoutUser} from "../../actions/authActions";
 
 class Navbar extends Component {
     static contextTypes = {
         router: PropTypes.object
     };
 
+    onLogoutClick = e => {
+        e.preventDefault();
+        this.props.logoutUser();
+    };
+
     render() {
-        let button = (window.location.pathname !== "/" && window.location.pathname !== "/login" && window.location.pathname !== "/register" && window.location.pathname !== "/dashboard") ?
-            <button
-                className="col s5 center btn-flat top material-icons small"
-                onClick={this.context.router.history.goBack}>
-                chevron_left
-            </button> : "";
+        let text = {
+            fontFamily: "monospace"
+        };
+
+        let menu = (this.props.auth.isAuthenticated)?
+                <div className="nav-wrapper white">
+                    <button
+                        className="btn-flat top material-icons small"
+                        onClick={this.context.router.history.goBack}>
+                        chevron_left
+                    </button>
+                    <span style={{ fontFamily: "monospace" }} className="brand-logo center black-text">
+                        <i className="material-icons">code</i> MERN
+                    </span>
+                    <ul id="nav-mobile" className="right hide-on-med-and-down">
+                        <li>
+                            <Link to="/character" className="black-text valign-wrapper">
+                                <i className="material-icons small valign">accessibility_new</i>
+                                <span style={{ text }}>character</span>
+                            </Link>
+                        </li>
+                        <li>
+                            <Link to="/expeditions" className="black-text valign-wrapper">
+                                <i className="material-icons small valign">directions_run</i>
+                                <span style={{ text }}>expeditions</span>
+                            </Link>
+                        </li>
+                        <li>
+                            <Link to="/fight" className="black-text valign-wrapper">
+                                <i className="material-icons small valign">colorize</i>
+                                <span style={{ text }}>fight</span>
+                            </Link>
+                        </li>
+                        <li>
+                            <Link to="/clan/show" className="black-text valign-wrapper">
+                                <i className="material-icons small valign">group</i>
+                                <span style={{ text }}>clan</span>
+                            </Link>
+                        </li>
+                        <li>
+                            <Link to="/shop" className="black-text valign-wrapper">
+                                <i className="material-icons small valign">shopping_cart</i>
+                                <span style={{ text }}>shop</span>
+                            </Link>
+                        </li>
+                        <li>
+                            <a href="" onClick={this.onLogoutClick} className="black-text valign-wrapper">
+                                <i className="material-icons small valign">exit_to_app</i>
+                                <span style={{ text }}>logout</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>: "";
 
         return (
-            <div className="navbar-fixed">
-                <nav className="z-depth-0">
-                    <div className="nav-wrapper white">
-                        {button}
-                        <Link
-                            to="/"
-                            style={{
-                                fontFamily: "monospace"
-                            }}
-                            className="col s5 brand-logo center black-text"
-                        >
-                            <i className="material-icons">code</i>
-                            MERN
-                        </Link>
-                    </div>
-                </nav>
-            </div>
+            <nav className="z-depth-0 white">
+                {menu}
+            </nav>
         );
     }
 }
+Navbar.propTypes = {
+    logoutUser: PropTypes.func.isRequired,
+    auth: PropTypes.object.isRequired
+};
 
-export default Navbar;
+const mapStateToProps = state => ({
+    auth: state.auth
+});
+
+export default connect(
+    mapStateToProps,
+    {logoutUser}
+)(Navbar);

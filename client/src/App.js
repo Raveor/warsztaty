@@ -12,7 +12,6 @@ import Landing from "./components/layout/Landing";
 import Register from "./components/auth/Register";
 import Login from "./components/auth/Login";
 import PrivateRoute from "./components/private-route/PrivateRoute";
-import Dashboard from "./components/dashboard/Dashboard";
 
 import "./App.css";
 import ExpeditionSelectList from "./components/expeditions/ExpeditionSelectList";
@@ -27,7 +26,7 @@ import ClanList from "./components/clan/ClanList";
 import Clan from "./components/clan/Clan";
 import ChatList from "./components/clan/ChatList";
 
-import EnemyList from "./components/fight/EnemyList";
+import Fight from "./components/fight/Fight";
 
 // Check for token to keep user logged in
 if (localStorage.jwtToken) {
@@ -61,16 +60,15 @@ class App extends Component {
             <Route path="/setNewPassword" component={ResetPassword} />
             <Route exact path="/passwordReset" component={ResetEmailForm} />
             <Switch>
-              <PrivateRoute exact path="/dashboard" component={Dashboard} />
               <PrivateRoute exact path="/expeditions" component={ExpeditionSelectList} />
               <PrivateRoute exact path="/expeditions/reports" component={ExpeditionReportList} />
               <PrivateRoute exact path="/character" component={Character}/>
               <PrivateRoute exact path="/shop" component={Shop}/>
               <AdminRoute exact path="/admin" component={AdminPanel}/>
-              <PrivateRoute exac path="/clan/show" component={Clan}/>
-              <PrivateRoute exac path="/clan/chat" component={ChatList}/>
-              <PrivateRoute exac path="/clan" component={ClanList}/>
-              <PrivateRoute exact path="/fight" component={EnemyList}/>
+              <PrivateRoute exact path="/clan/show" component={Clan}/>
+              <PrivateRoute exact path="/clan/chat" component={ChatList}/>
+              <PrivateRoute exact path="/clan" component={ClanList}/>
+              <PrivateRoute exact path="/fight" component={Fight}/>
             </Switch>
           </div>
         </Router>
