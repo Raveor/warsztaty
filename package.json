@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "start": "node app",
-    "dev": "start npm run start && start npm run start --prefix ./client"
+    "dev": "start npm run start && start npm run start --prefix ./client",
+    "heroku-postbuild": "cd client && npm install && npm run build"
   },
   "description": "Warsztaty",
   "author": {
