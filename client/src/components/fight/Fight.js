@@ -37,7 +37,7 @@ class Fight extends Component {
                 axios.get('/shop/inventory')
                     .then(response => this.setState({ inventory: response.data }))
                     .then( () => {
-                        if (this.state.inventory !== undefined) {
+                        if (this.state.inventory) {
                             this.state.inventory
                                 .sort(function(w1, w2) {
                                     return w1.price - w2.price;
@@ -86,13 +86,12 @@ class Fight extends Component {
                         if(character.level + 2 >= this.state.myCharacter.level && (oponentDamage !== this.state.myDefense || oponentDefense !==this.state.myDamage)){
                             enemiesMap.set(character.userId, character);
 
-                            enemies.push(
-                                <li key={character.userId} className="collection-item avatar">
-                                    <span className="title"><b>{this.state.availableUsers[character.userId]}</b></span>
-                                    <div className="description">Offense: {oponentDamage} | Defense: {oponentDefense}</div>
-                                    <button className="waves-effect waves-light btn secondary-content" onClick={() => this.fight(character.userId)}>Fight!</button>
-                                </li>
-                            );
+                            enemies.push({
+                                id: character.userId,
+                                damage: oponentDamage,
+                                defence: oponentDefense,
+                                level: character.level
+                            });
                         }
                     }
                 }
@@ -154,6 +153,16 @@ class Fight extends Component {
 
 
     render() {
+        let enemyList = [];
+        this.state.enemies.forEach( enemy => {
+            enemyList.push(
+                <li key={enemy.id} className="collection-item avatar">
+                    <span className="title"><b>{this.state.availableUsers[enemy.id]} | Level: {enemy.level}</b></span>
+                    <div className="description">Offense: {enemy.damage} | Defense: {enemy.defense}</div>
+                    <button className="waves-effect waves-light btn secondary-content" onClick={() => this.fight(enemy.id)}>Fight!</button>
+                </li>);
+            });
+
         let myStats = (
             <div>
                 <h4>My Stats</h4>
@@ -201,7 +210,7 @@ class Fight extends Component {
                     {myStats}
                 </div>
                 <div className="col s9">
-                    <ul className="collection">{this.state.enemies}</ul>
+                    <ul className="collection">{enemyList}</ul>
                 </div>
             </div>
         );

@@ -26,6 +26,6 @@
     "serve-favicon": "^2.3.0"
   },
   "engines": {
-    "node": "~11.14.x"
+    "node": "~10.16.x"
   }
 }

@@ -1,8 +1,9 @@
 import React, {Component} from "react";
-import {Link, Switch} from "react-router-dom";
+import {Link} from "react-router-dom";
 import PropTypes from "prop-types";
 import connect from "react-redux/es/connect/connect";
 import {logoutUser} from "../../actions/authActions";
+import { createBrowserHistory } from 'history';
 
 class Navbar extends Component {
     static contextTypes = {
@@ -19,13 +20,15 @@ class Navbar extends Component {
             fontFamily: "monospace"
         };
 
+        let backButton = (this.context.router.history.length > 1)?<button
+                className="btn-flat top material-icons small"
+                onClick={this.context.router.history.goBack}>
+                chevron_left
+            </button>: "";
+
         let menu = (this.props.auth.isAuthenticated)?
                 <div className="nav-wrapper white">
-                    <button
-                        className="btn-flat top material-icons small"
-                        onClick={this.context.router.history.goBack}>
-                        chevron_left
-                    </button>
+                    {backButton}
                     <span style={{ fontFamily: "monospace" }} className="brand-logo center black-text">
                         <i className="material-icons">code</i> MERN
                     </span>

@@ -64,11 +64,11 @@ class App extends Component {
               <PrivateRoute exact path="/expeditions/reports" component={ExpeditionReportList} />
               <PrivateRoute exact path="/character" component={Character}/>
               <PrivateRoute exact path="/shop" component={Shop}/>
-              <AdminRoute exact path="/admin" component={AdminPanel}/>
               <PrivateRoute exact path="/clan/show" component={Clan}/>
               <PrivateRoute exact path="/clan/chat" component={ChatList}/>
               <PrivateRoute exact path="/clan" component={ClanList}/>
               <PrivateRoute exact path="/fight" component={Fight}/>
+              <AdminRoute exact path="/admin" component={AdminPanel}/>
             </Switch>
           </div>
         </Router>
