@@ -40,7 +40,7 @@ class Inventory extends Component {
                 })
                 .forEach(item => {
                     inventoryList.push(
-                        <li className="collection-item">
+                        <li key={item._id} className="collection-item">
                             <b>{item.name}</b>
                             <ul>
                                 <li>Defence: {item.defence}</li>
